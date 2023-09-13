@@ -22,24 +22,27 @@ class ChimneySweepers:
         self.start = start
         self.end = end
 
-    def __create_cluster__(self) -> ServoCluster:
+    def create(self) -> ServoCluster:
         gc.collect()
         pins = list(range(self.start, self.end + 1))
         cluster = ServoCluster(0, 0, pins)
         return cluster
 
+    async def step(self, cluster) -> None:
+        """Step servo motors to new position."""
+
+        cluster.all_to_min()
+        await uasyncio.sleep_ms(2000)
+        cluster.all_to_max()
+        await uasyncio.sleep_ms(2000)
+
     async def run(self) -> None:
-        cluster = self.__create_cluster__()
-        cluster.enable_all()
+        """Run servo motors in process loop."""
+
+        cluster = self.create()
         while True:
-            #cluster.enable_all()
-            await uasyncio.sleep_ms(1000)
-            cluster.all_to_min()
-            await uasyncio.sleep_ms(2000)
-            cluster.all_to_max()
-            await uasyncio.sleep_ms(2000)
-            cluster.disable_all()
-            await uasyncio.sleep_ms(1000)
+            await self.step(cluster)
+            await uasyncio.sleep_ms(200)
 
 
 async def main():
