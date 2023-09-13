@@ -23,6 +23,8 @@ class ChimneySweepers:
         self.end = end
 
     async def create(self) -> ServoCluster:
+        """Create and return new ServoCluster object."""
+
         gc.collect()
         pins = list(range(self.start, self.end + 1))
         cluster = ServoCluster(0, 0, pins)
