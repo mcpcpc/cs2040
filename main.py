@@ -12,6 +12,8 @@ DEFAULT_SERVO_PIN_END = servo2040.SERVO_1
 
 
 class ChimneySweepers:
+    """Chimney sweepers representation."""
+
     def __init__(
             self,
             start: int = DEFAULT_SERVO_PIN_START,
@@ -20,23 +22,24 @@ class ChimneySweepers:
         self.start = start
         self.end = end
 
-    def create(self) -> ServoCluster:
+    def __create_cluster__(self) -> ServoCluster:
         gc.collect()
         pins = list(range(self.start, self.end + 1))
         cluster = ServoCluster(0, 0, pins)
         return cluster
 
     async def run(self) -> None:
-        cluster = self.create()
+        cluster = self.__create_cluster__()
+        cluster.enable_all()
         while True:
-            cluster.enable_all()
-            await uasyncio.sleep_ms(2000)
+            #cluster.enable_all()
+            await uasyncio.sleep_ms(1000)
             cluster.all_to_min()
-            await uasyncio.sleep(2)
-            cluster.all_to_max()
-            await uasyncio.sleep(2)
-            cluster.disable_all()
             await uasyncio.sleep_ms(2000)
+            cluster.all_to_max()
+            await uasyncio.sleep_ms(2000)
+            cluster.disable_all()
+            await uasyncio.sleep_ms(1000)
 
 
 async def main():
