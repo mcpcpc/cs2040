@@ -22,7 +22,7 @@ class ChimneySweepers:
         self.start = start
         self.end = end
 
-    def create(self) -> ServoCluster:
+    async def create(self) -> ServoCluster:
         gc.collect()
         pins = list(range(self.start, self.end + 1))
         cluster = ServoCluster(0, 0, pins)
@@ -39,7 +39,7 @@ class ChimneySweepers:
     async def run(self) -> None:
         """Run servo motors in process loop."""
 
-        cluster = self.create()
+        cluster = await self.create()
         while True:
             await self.step(cluster)
             await uasyncio.sleep_ms(200)
