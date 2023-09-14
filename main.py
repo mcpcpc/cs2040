@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import gc
+import machine
 import uasyncio
 
 from pimoroni import Analog
@@ -42,7 +43,7 @@ class ChimneySweepers:
 
 
 class ServoCurrentMeter:
-    """Servo current load meter."""
+    """Servo current meter representation."""
 
     async def get_leds(self) -> WS2812:
         leds = WS2812(
@@ -58,9 +59,19 @@ class ServoCurrentMeter:
             servo2040.SHARED_ADC,
             servo2040.CURRENT_GAIN,
             servo2040.SHUNT_RESISTOR,
-            servo2040.CURRENT_OFFSET
+            servo2040.CURRENT_OFFSET,
         )
         return current_adc
+
+    async def get_analog_mux(self) -> AnalogMux:
+        muxed_pin = machine.Pin(servo2040.SHARED_ADC)
+        analog_mux = AnalogMux(
+            servo2040.ADC_ADDR_0,
+            servo2040.ADC_ADDR_1,
+            servo2040.ADC_ADDR_2,
+            muxed_pin=muxed_pin,
+        )
+        return analog_mux
 
 
 async def main():
