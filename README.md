@@ -51,3 +51,4 @@ based on the project requirements.
 
 * https://github.com/mcpcpc/cs2040/releases/latest
 * https://github.com/pimoroni/pimoroni-pico/releases/latest
+* https://github.com/pimoroni/pimoroni-pico/blob/main/setting-up-micropython.md
