@@ -7,26 +7,17 @@ import uasyncio
 from servo import servo2040
 from servo import ServoCluster
 
-DEFAULT_SERVO_PIN_START = servo2040.SERVO_1
-DEFAULT_SERVO_PIN_END = servo2040.SERVO_1
-
 
 class ChimneySweepers:
     """Chimney sweepers representation."""
-
-    def __init__(
-            self,
-            start: int = DEFAULT_SERVO_PIN_START,
-            end: int = DEFAULT_SERVO_PIN_END,
-        ) -> None:
-        self.start = start
-        self.end = end
 
     async def create(self) -> ServoCluster:
         """Create and return new ServoCluster object."""
 
         gc.collect()
-        pins = list(range(self.start, self.end + 1))
+        start = servo2040.SERVO_1
+        end = servo2040.SERVO_1
+        pins = list(range(start, end + 1))
         cluster = ServoCluster(0, 0, pins)
         return cluster
 
