@@ -19,10 +19,13 @@ from plasma import WS2812
 from servo import servo2040
 from servo import ServoCluster
 
+# servo parameters
 SERVO_CLUSTER_PIN_START = servo2040.SERVO_1
 SERVO_CLUSTER_PIN_END = servo2040.SERVO_1
 SERVO_LOAD_MAX_AMPERES = 3.0
 SERVO_LOAD_SAMPLE_N = 3
+
+# meter parameters
 METER_LED_BRIGHTNESS_OFF = 0.1
 METER_LED_BRIGHTNESS_ON = 0.5
 METER_LED_NUMBER = servo2040.NUM_LEDS
@@ -113,7 +116,7 @@ def create_analog_mux() -> AnalogMux:
 
 class ChimneySweepers:
     """Chimney sweepers representation."""
-    
+
     def __init__(self, cluster: ServoCluster) -> None:
         self.cluster = cluster
 
