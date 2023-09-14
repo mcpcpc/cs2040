@@ -19,10 +19,13 @@ from plasma import WS2812
 from servo import servo2040
 from servo import ServoCluster
 
+SERVO_CLUSTER_PIN_START = servo2040.SERVO_1
+SERVO_CLUSTER_PIN_END = servo2040.SERVO_1
 SERVO_LOAD_MAX_AMPERES = 3.0
 SERVO_LOAD_SAMPLE_N = 3
-LED_OFF_BRIGHTNESS = 0.1
-LED_ON_BRIGHTNESS = 0.5
+METER_LED_BRIGHTNESS_OFF = 0.1
+METER_LED_BRIGHTNESS_ON = 0.5
+METER_LED_NUMBER = servo2040.NUM_LEDS
 
 
 def get_hue(num_leds: int, index: int) -> float:
@@ -64,8 +67,8 @@ def create_servo_cluster() -> ServoCluster:
     """Create and return new ServoCluster object."""
 
     gc.collect()
-    start = servo2040.SERVO_1
-    end = servo2040.SERVO_1
+    start = SERVO_CLUSTER_PIN_START
+    end = SERVO_CLUSTER_PIN_END
     pins = list(range(start, end + 1))
     cluster = ServoCluster(0, 0, pins)
     return cluster
@@ -153,13 +156,13 @@ class ServoCurrentMeter:
 
         current = await self.get_measurement()
         percent = get_current_load(current)
-        for i in range(servo2040.NUM_LEDS):
-            hue = get_hue(servo2040.NUM_LEDS, i)
-            level = get_level(servo2040.NUM_LEDS, i)
+        for i in range(METER_LED_NUMBER):
+            hue = get_hue(METER_LED_NUMBER, i)
+            level = get_level(METER_LED_NUMBER, i)
             if percent >= level:
-                self.leds.set_hsv(i, hue, 1.0, LED_ON_BRIGHTNESS)
+                self.leds.set_hsv(i, hue, 1.0, METER_LED_BRIGHTNESS_ON)
             else:
-                self.leds.set_hsv(i, hue, 1.0, LED_OFF_BRIGHTNESS) 
+                self.leds.set_hsv(i, hue, 1.0, METER_LED_BRIGHTNESS_OFF) 
 
     async def run(self) -> None:
         """Run servo current meter in loop."""
