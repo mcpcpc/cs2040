@@ -59,7 +59,7 @@ class ChimneySweepers:
 class ServoCurrentMeter:
     """Servo current meter representation."""
 
-    async def get_leds(self) -> WS2812:
+    async def create_leds(self) -> WS2812:
         """Create and return WS2812 array."""
  
         leds = WS2812(
@@ -70,7 +70,7 @@ class ServoCurrentMeter:
         )
         return leds
 
-    async def get_current_adc(self) -> Analog:
+    async def create_current_adc(self) -> Analog:
         """Create and return current ADC."""
  
         current_adc = Analog(
@@ -81,7 +81,9 @@ class ServoCurrentMeter:
         )
         return current_adc
 
-    async def get_analog_mux(self) -> AnalogMux:
+    async def create_analog_mux(self) -> AnalogMux:
+        """Create and return analog multiplexer."""
+
         muxed_pin = machine.Pin(servo2040.SHARED_ADC)
         analog_mux = AnalogMux(
             servo2040.ADC_ADDR_0,
