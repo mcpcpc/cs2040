@@ -22,4 +22,4 @@ The following materials are required to assemble and program the CS2040 controll
 
 ## References
 
-* https://github.com/pimoroni/pimoroni-pico/releases/latest
+* https://github.com/pimoroni/pimoroni-pico/releases/latest 
