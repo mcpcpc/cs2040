@@ -10,7 +10,6 @@ considered an important aspect of this project. Luckily, the board selected for
 this project includes built-in current-sense functionality and six addressable
 RGB LEDs, which allow active visualization of the connected load.
 
-
 ## Assembly
 
 ### Bill of Material
@@ -28,10 +27,16 @@ are required for initial programming and power.
 
 1. Download the latest compiled MicroPython release from the pimoroni-pico
    repository. The selected `*.uf2` file should be chosen based on the target
-   RP2040 servo controller hardware. For example, for the Servo 2040 board, the
-   `pimoroni-pico-v1.XX.X-micropython.uf2` file would be appropriate.
-2. Connect the RP2040 board to the computer.
+   RP2040-based servo controller hardware. For example, for the Servo 2040
+   board, the `pimoroni-pico-v1.XX.X-micropython.uf2` file would be appropriate.
+2. While pressing and holding the *BOOT/USER* button, connect the RP2040 board
+   to the computer usiing the USB-C adapter cable. This should automatically
+   mount a new drive to your computer.
+3. Replace any existing `*.uf2` file in the root directory of the mounted drive
+   with the appropriate one downloaded in the first step. After the file is
+   copied over, un-mount the drive, disconnect and reconnect the servo
+   controller.
 
 ## References
 
-* https://github.com/pimoroni/pimoroni-pico/releases/latest 
+* https://github.com/pimoroni/pimoroni-pico/releases/latest
