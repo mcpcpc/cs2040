@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# SPDX-License-Identifier: BSD-3-Clause
 
-"""main.py: CS-2040 Servo Controller"""
+"""main.py: CS-2040 Servo Controller Module"""
 
 __author__ = "Michael Czigler"
 __copyright__ = "Copyright 2023, Michael Czigler"
 __version__ = "1.0.0"
+__license__ = "BSD-3-Clause"
+__status__ = "Production"
 
 import gc
 import machine
@@ -24,17 +25,31 @@ LED_OFF_BRIGHTNESS = 0.1
 LED_ON_BRIGHTNESS = 0.5
 
 
-def get_hue(num_leds: int, i: int) -> float:
-    """Get LED hue based on LED index."""
+def get_hue(num_leds: int, index: int) -> float:
+    """Computer and return LED meter hue value.
+    
+    Args:
+        num_leds (int): Number of connected LEDS in meter.
+        index (int): Index of LED to compute the hue value.
+    Returns:
+        int: Hue value between 0.0 and 1.0
+    """
 
-    hue = (1.0 - i / (num_leds - 1)) * 0.333
+    hue = (1.0 - index / (num_leds - 1)) * 0.333
     return hue
 
 
-def get_level(num_leds: int, i: int) -> float:
-    """Get LED level based on LED index."""
+def get_level(num_leds: int, index: int) -> float:
+    """Computer and return LED meter level value.
+    
+    Args:
+        num_leds (int): Number of connected LEDS in meter.
+        index (int): Index of LED to compute the level value.
+    Returns:
+        int: Level value between 0.0 and 1.0
+    """
 
-    level = (i + 0.5) / num_leds
+    level = (index + 0.5) / num_leds
     return level
 
 
