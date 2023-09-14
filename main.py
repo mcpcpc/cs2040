@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause
 
+"""main.py: CS-2040 Servo Controller"""
+
+__author__ = "Michael Czigler"
+__copyright__ = "Copyright 2023, Michael Czigler"
+__version__ = "1.0.0"
+
 import gc
 import machine
 import uasyncio
@@ -15,7 +21,7 @@ from servo import ServoCluster
 SERVO_LOAD_MAX_AMPERES = 3.0
 SERVO_LOAD_SAMPLE_N = 3
 LED_OFF_BRIGHTNESS = 0.1
-LED_ON_BRIGHTNESS = 0.4
+LED_ON_BRIGHTNESS = 0.5
 
 
 def get_hue(num_leds: int, i: int) -> float:
@@ -153,12 +159,14 @@ class ServoCurrentMeter:
 async def main(debug: bool = False):
     """Main asynchronous method for task scheduling."""
 
+    # Declare pin assignments and I/O objects
     cluster = create_servo_cluster()
     sweepers = ChimneySweepers(cluster)
     adc = create_current_adc()
     leds = create_leds()
     mux = create_analog_mux()
     meter = ServoCurrentMeter(leds, adc, mux)
+    # Initialize asynchronous tasks
     uasyncio.create_task(meter.run())
     await sweepers.run()
 
