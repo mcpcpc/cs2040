@@ -2,14 +2,14 @@
 
 CS-2040 is an RP2040-based servo controller project for christmas tree display
 automation. The CS- prefix stands for "Chimney Sweep" as this project was
-primarily designed to articulate 3D figurines for a Mary Poppins themed
-christmas tree display using low cost micro servo motors. 
+primarily designed to articulate 3D figurines for a Mary Poppins themed ornament
+using low cost micro servos. The CS-2040 can support up to 18 consecutive 
 
-In addition to articulating the figures, servo current monitoring was also
-considered an important aspect of this project. Luckily, the Pimoroni Servo 2040
-board selected for this project includes built-in current-sense functionality
-and six addressable RGB LEDs, which allows us to actively visualize the active
-connected load.
+In addition to articulating the figures, servo current load monitoring was also
+considered an important aspect of this project. Luckily, the board selected for
+this project includes built-in current-sense functionality and six addressable
+RGB LEDs, which allow active visualization of the connected load.
+
 
 ## Assembly
 
@@ -31,7 +31,6 @@ are required for initial programming and power.
    RP2040 servo controller hardware. For example, for the Servo 2040 board, the
    `pimoroni-pico-v1.XX.X-micropython.uf2` file would be appropriate.
 2. Connect the RP2040 board to the computer.
-
 
 ## References
 

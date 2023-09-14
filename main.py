@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: BSD-3-Clause
 
 import gc
 import machine
@@ -11,7 +12,8 @@ from plasma import WS2812
 from servo import servo2040
 from servo import ServoCluster
 
-MAX_SERVO_LOAD_AMPERES = 3.0
+SERVO_LOAD_MAX_AMPERES = 3.0
+SERVO_LOAD_SAMPLE_N = 3
 LED_OFF_BRIGHTNESS = 0.1
 LED_ON_BRIGHTNESS = 0.4
 
@@ -33,7 +35,7 @@ def get_level(num_leds: int, i: int) -> float:
 def get_current_load(current: float) -> float:
     """Get current load utilization."""
 
-    load = current / MAX_SERVO_LOAD_AMPERES
+    load = current / SERVO_LOAD_MAX_AMPERES
     return load
 
 
@@ -119,10 +121,10 @@ class ServoCurrentMeter:
         """Get measurement from ADC object."""
 
         current = 0.0
-        for i in range(5):
+        for i in range(SERVO_LOAD_SAMPLE_N):
             current += self.adc.read_current()
             await uasyncio.sleep_ms(200)
-        current_average = current / 5
+        current_average = current / SERVO_LOAD_SAMPLE_N
         return current_average
 
     async def step(self) -> None:
