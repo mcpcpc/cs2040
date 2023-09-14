@@ -24,7 +24,7 @@ controller. Note that the quantity of servos is not specified as this should be
 based on the project requirements.
 
 - **Pimoroni Servo 2040** or similar RP2040-based servo controller
-- **Tower Pro SG92R** digital (micro) servo, 5.0 volt operation, 180-deg
+- **Tower Pro SG92R** digital (micro) servo, 5.0 volt operation, 180-degree
 - **McMaster-Carr 1037N112** 	polycarbonate plastic enclosure
 - **Alpha Wire 3051 GR005** green hook-up wire, 22AWG, stranded, 100-feet
 
@@ -41,7 +41,13 @@ based on the project requirements.
    with the appropriate one downloaded in the first step. After the file is
    copied over, un-mount the drive, disconnect and reconnect the servo
    controller.
+4. Download the CS-2040 source tarball from GitHub and extract the source files.
+   Alternatively, use the `git clone https://github.com/mcpcpc/cs2040` command
+   to clone the source repository.
+5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo
+   controller.
 
 ## References
 
+* https://github.com/mcpcpc/cs2040/releases/latest
 * https://github.com/pimoroni/pimoroni-pico/releases/latest
