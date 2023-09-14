@@ -9,7 +9,7 @@ In addition to articulating the figures, servo current monitoring was also
 considered an important aspect of this project. Luckily, the Pimoroni Servo 2040
 board selected for this project includes built-in current-sense functionality
 and six addressable RGB LEDs, which allows us to actively visualize the active
-load.
+connected load.
 
 ## Assembly
 

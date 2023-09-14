@@ -11,6 +11,10 @@ from plasma import WS2812
 from servo import servo2040
 from servo import ServoCluster
 
+MAX_SERVO_LOAD_AMPERES = 3.0
+LED_OFF_BRIGHTNESS = 0.1
+LED_ON_BRIGHTNESS = 0.4
+
 
 def get_hue(num_leds: int, i: int) -> float:
     """Get LED hue based on LED index."""
@@ -24,6 +28,13 @@ def get_level(num_leds: int, i: int) -> float:
 
     level = (i + 0.5) / num_leds
     return level
+
+
+def get_current_load(current: float) -> float:
+    """Get current load utilization."""
+
+    load = current / MAX_SERVO_LOAD_AMPERES
+    return load
 
 
 def create_servo_cluster() -> ServoCluster:
@@ -76,58 +87,78 @@ def create_analog_mux() -> AnalogMux:
 
 class ChimneySweepers:
     """Chimney sweepers representation."""
+    
+    def __init__(self, cluster: ServoCluster) -> None:
+        self.cluster = cluster
 
-    async def step(self, cluster) -> None:
+    async def step(self) -> None:
         """Step servo motors to new position."""
 
-        cluster.all_to_min()
+        self.cluster.all_to_min()
         await uasyncio.sleep_ms(2000)
-        cluster.all_to_max()
+        self.cluster.all_to_max()
         await uasyncio.sleep_ms(2000)
 
     async def run(self) -> None:
         """Run servo motors in process loop."""
 
-        cluster = create_servo_cluster()
         while True:
-            await self.step(cluster)
+            await self.step()
             await uasyncio.sleep_ms(200)
 
 
 class ServoCurrentMeter:
     """Servo current meter representation."""
 
-    async def get_measurement(self, adc: Analog) -> float:
+    def __init__(self, leds: WS2812, adc: Analog, mux: AnalogMux) -> None:
+        self.leds = leds
+        self.adc = adc
+        self.mux = mux
+
+    async def get_measurement(self) -> float:
         """Get measurement from ADC object."""
 
         current = 0.0
         for i in range(5):
-            current += adc.read_current()
+            current += self.adc.read_current()
             await uasyncio.sleep_ms(200)
         current_average = current / 5
         return current_average
 
     async def step(self) -> None:
-        """Step through current measurement process."""
+        """Step through current measuremsent process."""
 
-        
+        current = await self.get_measurement()
+        percent = get_current_load(current)
+        for i in range(servo2040.NUM_LEDS):
+            hue = get_hue(servo2040.NUM_LEDS, i)
+            level = get_level(servo2040.NUM_LEDS, i)
+            if percent >= level:
+                self.leds.set_hsv(i, hue, 1.0, LED_ON_BRIGHTNESS)
+            else:
+                self.leds.set_hsv(i, hue, 1.0, LED_OFF_BRIGHTNESS) 
 
     async def run(self) -> None:
         """Run servo current meter in loop."""
 
-        leds = create_leds()
-        current_adc = create_current_adc()
-        analog_mux = create_analog_mux()
-        analog_mux.select(servo2040.CURRENT_SENSE_ADDR)
+        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
+        self.leds.start()
+        while True:
+            await self.step()
+            await uasyncio.sleep_ms(200)
 
 
-async def main():
-    sweepers = ChimneySweepers()
-    meter = ServoCurrentMeter()
-    uasyncio.create_task(sweepers.run())
-    #uasyncio.create_task(meter.run())
-    while True:
-        await uasyncio.sleep_ms(200)
+async def main(debug: bool = False):
+    """Main asynchronous method for task scheduling."""
+
+    cluster = create_servo_cluster()
+    sweepers = ChimneySweepers(cluster)
+    adc = create_current_adc()
+    leds = create_leds()
+    mux = create_analog_mux()
+    meter = ServoCurrentMeter(leds, adc, mux)
+    uasyncio.create_task(meter.run())
+    await sweepers.run()
 
 
 if __name__ == "__main__":
