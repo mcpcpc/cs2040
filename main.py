@@ -22,10 +22,10 @@ from servo import ServoCluster
 # servo parameters
 SERVO_CLUSTER_PIN_START = servo2040.SERVO_1
 SERVO_CLUSTER_PIN_END = servo2040.SERVO_1
-SERVO_LOAD_MAX_AMPERES = 3.0
-SERVO_LOAD_SAMPLE_N = 3
 
 # meter parameters
+METER_LOAD_MAX_AMPERES = 3.0
+METER_LOAD_SAMPLE_N = 3
 METER_LED_BRIGHTNESS_OFF = 0.1
 METER_LED_BRIGHTNESS_ON = 0.5
 METER_LED_NUMBER = servo2040.NUM_LEDS
@@ -62,7 +62,7 @@ def get_level(num_leds: int, index: int) -> float:
 def get_current_load(current: float) -> float:
     """Get current load utilization."""
 
-    load = current / SERVO_LOAD_MAX_AMPERES
+    load = current / METER_LOAD_MAX_AMPERES
     return load
 
 
@@ -148,10 +148,10 @@ class ServoCurrentMeter:
         """Get measurement from ADC object."""
 
         current = 0.0
-        for i in range(SERVO_LOAD_SAMPLE_N):
+        for i in range(METER_LOAD_SAMPLE_N):
             current += self.adc.read_current()
             await uasyncio.sleep_ms(200)
-        current_average = current / SERVO_LOAD_SAMPLE_N
+        current_average = current / METER_LOAD_SAMPLE_N
         return current_average
 
     async def step(self) -> None:
