@@ -46,10 +46,10 @@ class ServoCurrentMeter:
         num_leds = servo2040.NUM_LEDS
         led_data = servo2040.LED_DATA
         leds = WS2812(
-            num_leds,
+            num_leds=num_leds,
             pio=1,
             sm=0,
-            led_data,
+            dat=led_data,
         )
         return leds
 
