@@ -4,6 +4,8 @@
 import gc
 import uasyncio
 
+from pimoroni import Analog
+from pimoroni import AnalogMux
 from plasma import WS2812
 from servo import servo2040
 from servo import ServoCluster
@@ -43,15 +45,22 @@ class ServoCurrentMeter:
     """Servo current load meter."""
 
     async def get_leds(self) -> WS2812:
-        num_leds = servo2040.NUM_LEDS
-        led_data = servo2040.LED_DATA
         leds = WS2812(
-            num_leds=num_leds,
+            num_leds=servo2040.NUM_LEDS,
             pio=1,
             sm=0,
-            dat=led_data,
+            dat=servo2040.LED_DATA,
         )
         return leds
+
+    async def get_current_adc(self) -> Analog:
+        current_adc = Analog(
+            servo2040.SHARED_ADC,
+            servo2040.CURRENT_GAIN,
+            servo2040.SHUNT_RESISTOR,
+            servo2040.CURRENT_OFFSET
+        )
+        return current_adc
 
 
 async def main():
