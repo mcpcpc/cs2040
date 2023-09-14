@@ -12,6 +12,20 @@ from servo import servo2040
 from servo import ServoCluster
 
 
+def get_hue(num_leds: int, i: int) -> float:
+    """Get LED hue based on LED index."""
+
+    hue = (1.0 - i / (num_leds - 1)) * 0.333
+    return hue
+
+
+def get_level(num_leds: int, i: int) -> float:
+    """Get LED level based on LED index."""
+
+    level = (i + 0.5) / num_leds
+    return level
+
+
 class ChimneySweepers:
     """Chimney sweepers representation."""
 
@@ -46,6 +60,8 @@ class ServoCurrentMeter:
     """Servo current meter representation."""
 
     async def get_leds(self) -> WS2812:
+        """Create and return WS2812 array."""
+ 
         leds = WS2812(
             num_leds=servo2040.NUM_LEDS,
             pio=1,
@@ -55,6 +71,8 @@ class ServoCurrentMeter:
         return leds
 
     async def get_current_adc(self) -> Analog:
+        """Create and return current ADC."""
+ 
         current_adc = Analog(
             servo2040.SHARED_ADC,
             servo2040.CURRENT_GAIN,
