@@ -32,35 +32,21 @@ METER_LED_NUMBER = servo2040.NUM_LEDS
 
 
 def get_hue(num_leds: int, index: int) -> float:
-    """Computer and return LED meter hue value.
-    
-    Args:
-        num_leds (int): Number of connected LEDS in meter.
-        index (int): Index of LED to compute the hue value.
-    Returns:
-        int: Hue value between 0.0 and 1.0
-    """
+    """Computer and return LED meter hue value."""
 
     hue = (1.0 - index / (num_leds - 1)) * 0.333
     return hue
 
 
 def get_level(num_leds: int, index: int) -> float:
-    """Computer and return LED meter level value.
-    
-    Args:
-        num_leds (int): Number of connected LEDS in meter.
-        index (int): Index of LED to compute the level value.
-    Returns:
-        int: Level value between 0.0 and 1.0
-    """
+    """Computer and return LED meter level value."""
 
     level = (index + 0.5) / num_leds
     return level
 
 
 def get_current_load(current: float) -> float:
-    """Get current load utilization."""
+    """Computer and return load utilization."""
 
     load = current / METER_LOAD_MAX_AMPERES
     return load
