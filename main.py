@@ -45,10 +45,10 @@ def get_level(num_leds: int, index: int) -> float:
     return level
 
 
-def get_current_load(current: float) -> float:
-    """Computer and return load utilization."""
+def get_load(current: float, max_current: float) -> float:
+    """Computer and return current load utilization."""
 
-    load = current / METER_LOAD_MAX_AMPERES
+    load = current / max_current
     return load
 
 
@@ -144,7 +144,7 @@ class ServoCurrentMeter:
         """Step through current measuremsent process."""
 
         current = await self.get_measurement()
-        percent = get_current_load(current)
+        percent = get_load(current, METER_LOAD_MAX_AMPERES)
         for i in range(METER_LED_NUMBER):
             hue = get_hue(METER_LED_NUMBER, i)
             level = get_level(METER_LED_NUMBER, i)
