@@ -106,13 +106,33 @@ class ChimneySweepers:
     def __init__(self, cluster: ServoCluster) -> None:
         self.cluster = cluster
 
+    async def sequence_alternating(self) -> None:
+        """Sequence servos in alternating full min/mix."""
+
+        count = cluster.count()
+        for servo in range(count):
+            if (servo % 2) == 0:
+                self.cluster.to_min(servo, load=False)
+            else:
+                self.cluster.to_max(servo, load=False)
+        self.cluster.load()
+        await uasyncio.sleep_ms(2000)
+        for servo in range(count):
+            if (servo % 2) == 0:
+                self.cluster.to_max(servo, load=False)
+            else:
+                self.cluster.to_min(servo, load=False)
+        self.cluster.load()
+        await uasyncio.sleep_ms(2000)
+
     async def step(self) -> None:
         """Step servo motors to new position."""
 
-        self.cluster.all_to_min()
-        await uasyncio.sleep_ms(2000)
-        self.cluster.all_to_max()
-        await uasyncio.sleep_ms(2000)
+        #self.cluster.all_to_min()
+        #await uasyncio.sleep_ms(2000)
+        #self.cluster.all_to_max()
+        #await uasyncio.sleep_ms(2000)
+        await self.sequence_alternating()
 
     async def run(self) -> None:
         """Run servo motors in process loop."""
