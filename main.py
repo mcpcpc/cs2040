@@ -109,7 +109,7 @@ class ChimneySweepers:
     async def sequence_alternating(self) -> None:
         """Sequence servos in alternating full min/mix."""
 
-        count = cluster.count()
+        count = self.cluster.count()
         for servo in range(count):
             if (servo % 2) == 0:
                 self.cluster.to_min(servo, load=False)
