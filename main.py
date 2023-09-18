@@ -21,12 +21,11 @@ from servo import ServoCluster
 
 # servo parameters
 SERVO_CLUSTER_PIN_START = servo2040.SERVO_1
-SERVO_CLUSTER_PIN_END = servo2040.SERVO_2
+SERVO_CLUSTER_PIN_END = servo2040.SERVO_4
 SERVO_CLUSTER_DELAY = 5000 # in milliseconds
 
 # meter parameters
 METER_LOAD_MAX_AMPERES = 3.0
-METER_LOAD_SAMPLE_N = 3 # number of averages
 METER_LED_BRIGHTNESS_OFF = 0.1
 METER_LED_BRIGHTNESS_ON = 0.5
 METER_LED_NUMBER = servo2040.NUM_LEDS
@@ -107,29 +106,24 @@ class ChimneySweepers:
     def __init__(self, cluster: ServoCluster) -> None:
         self.cluster = cluster
 
-    async def sequence_alternating(self) -> None:
-        """Sequence servos in alternating full min/mix."""
+    async def step(self) -> None:
+        """Step servo sequence."""
 
         count = self.cluster.count()
         for servo in range(count):
             if (servo % 2) == 0:
-                self.cluster.to_min(servo, load=False)
+                self.cluster.to_min(servo)
             else:
-                self.cluster.to_max(servo, load=False)
-        self.cluster.load()
+                self.cluster.to_max(servo)
+            await uasyncio.sleep_ms(500)
         await uasyncio.sleep_ms(SERVO_CLUSTER_DELAY)
         for servo in range(count):
             if (servo % 2) == 0:
-                self.cluster.to_max(servo, load=False)
+                self.cluster.to_max(servo)
             else:
-                self.cluster.to_min(servo, load=False)
-        self.cluster.load()
+                self.cluster.to_min(servo)
+            await uasyncio.sleep_ms(500)
         await uasyncio.sleep_ms(SERVO_CLUSTER_DELAY)
-
-    async def step(self) -> None:
-        """Step servo motors to new position."""
-
-        await self.sequence_alternating()
 
     async def run(self) -> None:
         """Run servo motors in process loop."""
@@ -147,20 +141,10 @@ class ServoCurrentMeter:
         self.adc = adc
         self.mux = mux
 
-    async def get_measurement(self) -> float:
-        """Get measurement from ADC object."""
-
-        current = 0.0
-        for i in range(METER_LOAD_SAMPLE_N):
-            current += self.adc.read_current()
-            await uasyncio.sleep_ms(200)
-        current_average = current / METER_LOAD_SAMPLE_N
-        return current_average
-
     async def step(self) -> None:
         """Step through current measuremsent process."""
 
-        current = await self.get_measurement()
+        current = self.adc.read_current()
         percent = get_load(current, METER_LOAD_MAX_AMPERES)
         for i in range(METER_LED_NUMBER):
             hue = get_hue(METER_LED_NUMBER, i)
@@ -177,10 +161,10 @@ class ServoCurrentMeter:
         self.leds.start()
         while True:
             await self.step()
-            await uasyncio.sleep_ms(200)
+            await uasyncio.sleep_ms(100)
 
 
-async def main(debug: bool = False):
+async def main():
     """Main asynchronous method for task scheduling."""
 
     # Declare pin assignments and I/O objects
