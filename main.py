@@ -21,11 +21,12 @@ from servo import ServoCluster
 
 # servo parameters
 SERVO_CLUSTER_PIN_START = servo2040.SERVO_1
-SERVO_CLUSTER_PIN_END = servo2040.SERVO_1
+SERVO_CLUSTER_PIN_END = servo2040.SERVO_2
+SERVO_CLUSTER_DELAY = 5000 # in milliseconds
 
 # meter parameters
 METER_LOAD_MAX_AMPERES = 3.0
-METER_LOAD_SAMPLE_N = 3
+METER_LOAD_SAMPLE_N = 3 # number of averages
 METER_LED_BRIGHTNESS_OFF = 0.1
 METER_LED_BRIGHTNESS_ON = 0.5
 METER_LED_NUMBER = servo2040.NUM_LEDS
@@ -116,22 +117,18 @@ class ChimneySweepers:
             else:
                 self.cluster.to_max(servo, load=False)
         self.cluster.load()
-        await uasyncio.sleep_ms(2000)
+        await uasyncio.sleep_ms(SERVO_CLUSTER_DELAY)
         for servo in range(count):
             if (servo % 2) == 0:
                 self.cluster.to_max(servo, load=False)
             else:
                 self.cluster.to_min(servo, load=False)
         self.cluster.load()
-        await uasyncio.sleep_ms(2000)
+        await uasyncio.sleep_ms(SERVO_CLUSTER_DELAY)
 
     async def step(self) -> None:
         """Step servo motors to new position."""
 
-        #self.cluster.all_to_min()
-        #await uasyncio.sleep_ms(2000)
-        #self.cluster.all_to_max()
-        #await uasyncio.sleep_ms(2000)
         await self.sequence_alternating()
 
     async def run(self) -> None:
