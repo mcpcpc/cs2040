@@ -21,7 +21,7 @@ from servo import ServoCluster
 
 # servo parameters
 SERVO_CLUSTER_PIN_START = servo2040.SERVO_1
-SERVO_CLUSTER_PIN_END = servo2040.SERVO_4
+SERVO_CLUSTER_PIN_END = servo2040.SERVO_7
 SERVO_CLUSTER_DELAY = 5000 # in milliseconds
 
 # meter parameters
