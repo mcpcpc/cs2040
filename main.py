@@ -138,6 +138,12 @@ class LoadCurrentMeter:
         self.adc = adc
         self.mux = mux
 
+    def initialize(self) -> None:
+        """Initialize current meter."""
+
+        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
+        self.leds.start()
+
     def step(self) -> None:
         """Step through current measuremsent process."""
 
@@ -164,8 +170,7 @@ class LoadCurrentMeter:
     def run(self) -> None:
         """Run servo current meter in loop."""
 
-        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
-        self.leds.start()
+        self.initialize()
         while True:
             self.step()
 
