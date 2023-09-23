@@ -60,7 +60,7 @@ class Linear(TranslationBase):
         self.transition.end = self.end
         self.transition.duration = self.duration
 
-    def tick(self) -> bool:
+    def tick(self, servo) -> bool:
         """Servo tick."""
 
         current_time = time.ticks_ms()
@@ -69,12 +69,18 @@ class Linear(TranslationBase):
             self.start_time,
         )
         if ellapsed > self.duration:
-            self.current_position = self.end
-            self.servo.to_position(self.current_position)
+            current_position = self.end
+            self.servo.to_position(
+                servo,
+                current_position,
+            )
             return True
-        self.current_position = self.transition.ease(ellapsed)
-        self.servo.to_position(self.current_position)
-        if self.current_position == self.end:
+        current_position = self.transition.ease(ellapsed)
+        self.servo.to_position(
+            servo,
+            current_position,
+        )
+        if current_position == self.end:
             return True
         else:
             return False
