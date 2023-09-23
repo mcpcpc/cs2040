@@ -15,9 +15,9 @@ class TranslationBase:
         end: float,
         duration_ms: int
      ) -> None:
-        self.start = start
-        self.end = end
-        self.duration_ms = duration_ms
+        self.start = float(start)
+        self.end = float(end)
+        self.duration_ms = int(duration_ms)
 
     def __call__(self, time_ms: int) -> float:
         return self.ease(time_ms)
@@ -26,7 +26,7 @@ class TranslationBase:
         return NotImplementedError
  
     def ease(self, time_ms: int) -> float:
-        a = self.function(time_ms / self.duration_ms)
+        a = self.function(int(time_ms) / self.duration_ms)
         return (self.end * a) + self.start * (1 - a)
 
 
