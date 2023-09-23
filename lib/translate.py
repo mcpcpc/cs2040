@@ -40,27 +40,20 @@ class Linear(TranslationBase):
  class ServoClusterTranslate:
     """Servo translate representation."""
 
-    start: float = -1.0
-    end: float = 1.0
-    duration: int = 1000
-    transition: TransitionBase = Linear(
-        start=self.start,
-        end=self.end,
-        duration=self.duration,
-    )
-    current_time: int = 0
     start_time: int = 0
 
-    def __init__(self, servo: ServoCluster) -> None:
+    def __init__(
+        self,
+        servo: ServoCluster,
+        translation: TransitionBase,
+    ) -> None:
         self.servo = servo
+        self.translate = translation
 
     def initialize(self) -> None:
         """Servo tick start."""
 
         self.start_time = time.ticks_ms()
-        self.transition.start = self.start
-        self.transition.end = self.end
-        self.transition.duration = self.duration
 
     def tick(self, servo: int) -> bool:
         """Translation tick."""
