@@ -52,7 +52,7 @@ class Linear(TranslationBase):
     def __init__(self, servo) -> None:
         self.servo = servo
 
-    def tick_start(self) -> None:
+    def initialize(self) -> None:
         """Servo tick start."""
 
         self.start_time = time.ticks_ms()
@@ -60,8 +60,8 @@ class Linear(TranslationBase):
         self.transition.end = self.end
         self.transition.duration = self.duration
 
-    def tick(self, servo) -> bool:
-        """Servo tick."""
+    def tick(self, servo: int) -> bool:
+        """Translation tick."""
 
         current_time = time.ticks_ms()
         ellapsed = time.ticks_diff(
@@ -84,3 +84,12 @@ class Linear(TranslationBase):
             return True
         else:
             return False
+
+    def translate(self, servo: int) -> None:
+        """Translate select servo in cluster."""
+
+        self.initialize()
+        while True:
+            state = self.tick(servo)
+            if status == True:
+                break
