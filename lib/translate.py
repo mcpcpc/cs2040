@@ -3,6 +3,8 @@
 
 import time
 
+from servo import ServoCluster
+
 
 class TranslationBase:
     """Translation base representation."""
@@ -49,7 +51,7 @@ class Linear(TranslationBase):
     current_time: int = 0
     start_time: int = 0
 
-    def __init__(self, servo) -> None:
+    def __init__(self, servo: ServoCluster) -> None:
         self.servo = servo
 
     def initialize(self) -> None:
