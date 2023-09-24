@@ -23,11 +23,15 @@ class TranslationBase:
         return self.ease(time_ms)
 
     def function(self, t: float) -> int:
+        """User implemented translation function."""
+
         return NotImplementedError
  
     def ease(self, time_ms: int) -> float:
-        a = self.function(int(time_ms) / self.duration_ms)
-        return (self.end * a) + self.start * (1 - a)
+        """Ease postion from current time in milliseconds."""
+
+        a = self.function(time_ms / self.duration_ms)
+        return a * (self.end - self.start) + self.start
 
 
 class Linear(TranslationBase):
