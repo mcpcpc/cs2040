@@ -36,6 +36,7 @@ class SequenceBase:
     @classmethod
     def generator(self, value: bytearray):
         """Positional array generator."""
+
         length = len(value)
         for i in range(0, length, self.take):
             seq = value[i:i + self.take]
