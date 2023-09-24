@@ -20,6 +20,8 @@ from lib.meter import create_analog_mux
 from lib.meter import create_current_adc
 from lib.meter import create_leds
 from lib.meter import LoadCurrentMeter
+from lib.sequence import AlternatingOctet
+from lib.translate import Linear
 
 
 def create_servo_cluster() -> ServoCluster:

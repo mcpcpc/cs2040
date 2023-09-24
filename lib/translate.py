@@ -6,7 +6,7 @@ import time
 from servo import ServoCluster
 
 
-class TranslationBase:
+class TranslateBase:
     """Translation base representation."""
 
     def __init__(
@@ -34,7 +34,7 @@ class TranslationBase:
         return a * (self.end - self.start) + self.start
 
 
-class Linear(TranslationBase):
+class Linear(TranslateBase):
     """Linear translation representation."""
 
     def function(self, t: float) -> int:
