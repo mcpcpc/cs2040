@@ -5,7 +5,7 @@
 class SequenceBase:
     """Sequence base representation."""
 
-    take: int = 8  # sequence length
+    take: int = 8  # sequence length per iteration
     minimum: float = -1.0  # mininum position value
     maximum: float = 1.0  # maximum position value
 
@@ -22,7 +22,8 @@ class SequenceBase:
     def normalize(self, value: int) -> float:
         """Normalize sequence value."""
 
-        return value / 0xFF
+        normal_value = value / 0xFF
+        return normal_value
 
     @classmethod
     def position(self, value: float) -> float:
@@ -47,10 +48,12 @@ class AlternatingOctet(SequenceBase):
     
     Moves eight servos in alternating full-min nd full-max
     positions.
+
     """
 
-    def sequence(self):
-        return [
+    def sequence(self) -> bytearray:
+        seq = [
             0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
             0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00
         ]
+        return bytearray(seq)
