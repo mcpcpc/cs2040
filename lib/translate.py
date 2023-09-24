@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-
-from servo import ServoCluster
-
 
 class TranslateBase:
     """Translation base representation."""
 
     def __init__(
         self,
-        start: float,
-        end: float,
-        duration_ms: int
+        start: float = -1.0,
+        end: float = 1.0,
+        duration_ms: int = 1000,
      ) -> None:
         self.start = float(start)
         self.end = float(end)
@@ -32,56 +28,3 @@ class TranslateBase:
 
         a = self.function(time_ms / self.duration_ms)
         return a * (self.end - self.start) + self.start
-
-
- class ServoClusterTranslate:
-    """Servo translate representation."""
-
-    start_time: int = 0
-
-    def __init__(
-        self,
-        servo: ServoCluster,
-        translation: TransitionBase,
-    ) -> None:
-        self.servo = servo
-        self.translate = translation
-
-    def initialize(self) -> None:
-        """Servo tick start."""
-
-        self.start_time = time.ticks_ms()
-
-    def tick(self, servo: int) -> bool:
-        """Translation tick."""
-
-        current_time = time.ticks_ms()
-        ellapsed = time.ticks_diff(
-            current_time,
-            self.start_time,
-        )
-        if ellapsed > self.duration:
-            current_position = self.end
-            self.servo.to_position(
-                servo,
-                current_position,
-            )
-            return True
-        current_position = self.transition.ease(ellapsed)
-        self.servo.to_position(
-            servo,
-            current_position,
-        )
-        if current_position == self.end:
-            return True
-        else:
-            return False
-
-    def translate(self, servo: int) -> None:
-        """Translate select servo in cluster."""
-
-        self.initialize()
-        while True:
-            state = self.tick(servo)
-            if status == True:
-                break

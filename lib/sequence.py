@@ -23,7 +23,7 @@ class SequenceBase:
         """Normalize sequence value."""
 
         normal_value = value / 0xFF
-        return normal_value
+        return float(normal_value)
 
     @classmethod
     def position(self, value: float) -> float:
