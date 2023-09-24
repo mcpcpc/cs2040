@@ -34,13 +34,6 @@ class TranslateBase:
         return a * (self.end - self.start) + self.start
 
 
-class Linear(TranslateBase):
-    """Linear translation representation."""
-
-    def function(self, t: float) -> int:
-        return t
-
- 
  class ServoClusterTranslate:
     """Servo translate representation."""
 

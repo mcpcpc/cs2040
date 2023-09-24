@@ -20,8 +20,8 @@ from lib.meter import create_analog_mux
 from lib.meter import create_current_adc
 from lib.meter import create_leds
 from lib.meter import LoadCurrentMeter
-from lib.sequence import AlternatingOctet
-from lib.translate import Linear
+from lib.sequence import SequenceBase
+from lib.translate import TranslateBase
 
 
 def create_servo_cluster() -> ServoCluster:
@@ -32,6 +32,29 @@ def create_servo_cluster() -> ServoCluster:
     end = servo2040.SERVO_7
     pins = list(range(start, end + 1))
     return ServoCluster(0, 0, pins)
+
+
+class Linear(TranslateBase):
+    """Linear translation representation."""
+
+    def function(self, t: float) -> int:
+        return t
+
+
+class AlternatingOctet(SequenceBase):
+    """Alternating Octet
+    
+    Moves eight servos in alternating full-min nd full-max
+    positions.
+
+    """
+
+    def sequence(self) -> bytearray:
+        seq = [
+            0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+            0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00
+        ]
+        return bytearray(seq)
 
 
 class ChimneySweepers:

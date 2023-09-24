@@ -42,19 +42,3 @@ class SequenceBase:
             seq = value[i:i + self.take]
             norm = list(map(self.normalize, seq))
             yield list(map(self.position, norm))
-
-
-class AlternatingOctet(SequenceBase):
-    """Alternating Octet
-    
-    Moves eight servos in alternating full-min nd full-max
-    positions.
-
-    """
-
-    def sequence(self) -> bytearray:
-        seq = [
-            0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-            0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00
-        ]
-        return bytearray(seq)
