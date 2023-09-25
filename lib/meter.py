@@ -9,27 +9,6 @@ from plasma import WS2812
 from servo import servo2040
 
 
-def get_hue(num_leds: int, index: int) -> float:
-    """Computer and return LED meter hue value."""
-
-    hue = (1.0 - index / (num_leds - 1)) * 0.333
-    return hue
-
-
-def get_level(num_leds: int, index: int) -> float:
-    """Computer and return LED meter level value."""
-
-    level = (index + 0.5) / num_leds
-    return level
-
-
-def get_load(current: float, max_current: float) -> float:
-    """Computer and return current load utilization."""
-
-    load = current / max_current
-    return load
-
-
 def create_leds() -> WS2812:
     """Create and return WS2812 array."""
  
@@ -85,6 +64,27 @@ class LoadCurrentMeter:
         self.adc = adc
         self.mux = mux
 
+    @classmethod
+    def get_hue(self, index: int) -> float:
+        """Computer and return LED meter hue value."""
+
+        hue = (1.0 - index / (self.num_leds - 1)) * 0.333
+        return float(hue)
+
+    @classmethod
+    def get_level(self, index: int) -> float:
+        """Computer and return LED meter level value."""
+
+        level = (index + 0.5) / self.num_leds
+        return float(level)
+
+    @classmethod
+    def get_load(self, value: float) -> float:
+        """Computer and return current load utilization."""
+
+        load = value / self.max_load
+        return float(load)
+
     def initialize(self) -> None:
         """Initialize current meter."""
 
@@ -95,10 +95,10 @@ class LoadCurrentMeter:
         """Step through current measuremsent process."""
 
         current = self.adc.read_current()
-        percent = get_load(current, self.max_load)
+        percent = self.get_load(current)
         for i in range(self.num_leds):
-            hue = get_hue(self.num_leds, i)
-            level = get_level(self.num_leds, i)
+            hue = self.get_hue(i)
+            level = self.get_level(i)
             if percent >= level:
                 self.leds.set_hsv(
                     i,
