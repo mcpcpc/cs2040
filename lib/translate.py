@@ -22,7 +22,8 @@ class TranslateBase:
         """User implemented translation function."""
 
         return NotImplementedError
- 
+
+    @classmethod
     def ease(self, time_ms: int) -> float:
         """Ease postion from current time in milliseconds."""
 
