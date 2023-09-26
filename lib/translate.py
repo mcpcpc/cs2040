@@ -5,15 +5,9 @@
 class TranslateBase:
     """Translation base representation."""
 
-    def __init__(
-        self,
-        start: float = -1.0,
-        end: float = 1.0,
-        duration_ms: int = 1000,
-     ) -> None:
-        self.start = float(start)
-        self.end = float(end)
-        self.duration_ms = int(duration_ms)
+    start: float = -1.0
+    end: float = 1.0
+    duration_ms: int = 1000
 
     def __call__(self, time_ms: int) -> float:
         return self.ease(time_ms)
