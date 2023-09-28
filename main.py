@@ -26,7 +26,7 @@ def create_servo_cluster() -> ServoCluster:
 
     gc.collect()
     start = servo2040.SERVO_1
-    end = servo2040.SERVO_7
+    end = servo2040.SERVO_8
     pins = list(range(start, end + 1))
     return ServoCluster(0, 0, pins)
 
@@ -146,7 +146,7 @@ class TranslateBase:
 
     start: float = -1.0
     end: float = 1.0
-    duration_ms: int = 1000
+    duration_ms: int = 10000
 
     def __call__(self, time_ms: int) -> float:
         return self.ease(time_ms)
@@ -220,20 +220,22 @@ class AlternatingOctet(SequenceBase):
         return bytearray(seq)
 
 
-class ChimneySweepers:
-    """Chimney sweepers representation."""
+class ServoTickBase:
 
     start_ms: int = 0
 
     def __init__(
         self,
         cluster: ServoCluster,
-        sequence: SequenceBase,
         translate: TranslateBase
     ) -> None:
         self.cluster = cluster
-        self.sequence = sequence
         self.translate = translate
+
+    def tick_initialize(self) -> None:
+        """Tick initialization."""
+
+        self.start_ms = 0
 
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
@@ -252,24 +254,35 @@ class ChimneySweepers:
             return True
         return False
 
-    def tick_all(self, servos: list) -> list[bool]:
+
+class ChimneySweepers(ServoTickBase):
+    """Chimney sweepers representation."""
+
+    sequence: SequenceBase = AlternatingOctet()
+
+    def tick_all(self, servos: list, seq: list, prev: list) -> list[bool]:
         """"""
         
-        result = list(map(self.tick, servos))
+        result = []
+        for servo, start, end in zip(servos, seq, prev):
+            self.translate.start = start
+            self.translate.end = end
+            result.append(self.tick(servo))
         return result
-            
 
     def step(self) -> None:
         """Step servo position."""
 
         self.start_ms = time.ticks_ms()
         sequences = list(self.sequence())
-        servos = range(self.sequence.take)
+        servos = list(range(self.sequence.take))
         for s, seq in enumerate(sequences):
             prev = sequences[s - 1]
-            self.start_ms = 0
-            while not all(self.tick_all(servos)):
-                continue
+            self.tick_initialize()
+            status = [False] * self.sequence.take
+            while not all(status):
+                status = self.tick_all(servos, seq, prev)
+                time.sleep_ms(20)
 
     def run(self) -> None:
         """Run servo motors in process loop."""
@@ -282,17 +295,12 @@ class ChimneySweepers:
 def main():
     """Main method for task scheduling."""
 
-    cluster = create_servo_cluster()
-    sequence = AlternatingOctet()
-    translate = Linear()
-    sweepers = ChimneySweepers(
-        cluster=cluster,
-        sequence=sequence,
-        translate=translate,
-    )
     adc = create_current_adc()
     leds = create_leds()
     mux = create_analog_mux()
+    cluster = create_servo_cluster()
+    translate = Linear()
+    sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     _thread.start_new_thread(meter.run, ())
     sweepers.run()
