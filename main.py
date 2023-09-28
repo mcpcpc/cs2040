@@ -252,20 +252,24 @@ class ChimneySweepers:
             return True
         return False
 
+    def tick_all(self, servos: list) -> list[bool]:
+        """"""
+        
+        result = list(map(self.tick, servos))
+        return result
+            
+
     def step(self) -> None:
         """Step servo position."""
 
         self.start_ms = time.ticks_ms()
         sequences = list(self.sequence())
+        servos = range(self.sequence.take)
         for s, seq in enumerate(sequences):
-            status = [False] * len(seq)
             prev = sequences[s - 1]
             self.start_ms = 0
-            while not all(status):
-                for i, val in enumerate(zip(prev, seq)):
-                    self.translate.start = val[0]
-                    self.translate.end = val[1]
-                    status[i] = self.tick(i)
+            while not all(self.tick_all(servos)):
+                continue
 
     def run(self) -> None:
         """Run servo motors in process loop."""
