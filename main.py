@@ -173,7 +173,7 @@ class Linear(TranslateBase):
 class SequenceBase:
     """Sequence base representation."""
 
-    take: int = 2  # sequence length per iteration
+    take: int = 8  # sequence length per iteration
     minimum: float = -1.0  # mininum position value
     maximum: float = 1.0  # maximum position value
 
@@ -262,9 +262,9 @@ class ChimneySweepers:
             prev = sequences[s - 1]
             self.start_ms = 0
             while not all(status):
-                for i, pos in enumerate(seq):
-                    self.translate.start = prev[i]
-                    self.translate.end = pos
+                for i, val in enumerate(zip(prev, seq)):
+                    self.translate.start = val[0]
+                    self.translate.end = val[1]
                     status[i] = self.tick(i)
 
     def run(self) -> None:
