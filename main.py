@@ -26,7 +26,7 @@ def create_servo_cluster() -> ServoCluster:
 
     gc.collect()
     start = servo2040.SERVO_1
-    end = servo2040.SERVO_6
+    end = servo2040.SERVO_7
     pins = list(range(start, end + 1))
     return ServoCluster(0, 0, pins)
 
@@ -146,7 +146,7 @@ class TranslateBase:
 
     start: float = -1.0
     end: float = 1.0
-    duration_ms: int = 2000
+    duration_ms: int = 5000
 
     def __call__(self, time_ms: int) -> float:
         return self.ease(time_ms)
@@ -168,6 +168,11 @@ class Linear(TranslateBase):
 
     def function(self, t: float) -> float:
         return t
+
+
+class Ease_out_quad(TranslateBase):
+    def function(self, t: float) -> float:
+        return -(t * (t - 2))
 
 
 class ServoTickBase:
@@ -218,8 +223,8 @@ class ChimneySweepers(ServoTickBase):
     """Chimney sweepers representation."""
 
     sequence: list = [
-        [-1.0, 1.0],
-        [1.0, -1.0],
+        [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],
+        [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0],
     ]
 
     def setup(self) -> None:
@@ -227,9 +232,8 @@ class ChimneySweepers(ServoTickBase):
 
         count = self.cluster.count()
         for servo in range(count):
-            #self.cluster.to_min()
-            self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
-            time.sleep_ms(1000)
+            self.cluster.to_min(servo)
+            time.sleep_ms(500)
 
     def tick_all(self, seq: list, prev: list) -> list[bool]:
         """Tick all."""
@@ -266,7 +270,7 @@ def main():
     leds = create_leds()
     mux = create_analog_mux()
     cluster = create_servo_cluster()
-    translate = Linear()
+    translate = Ease_out_quad()
     sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     _thread.start_new_thread(meter.run, ())
