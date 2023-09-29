@@ -227,6 +227,7 @@ class ChimneySweepers(ServoTickBase):
         result = []
         servos = list(range(self.cluster.count()))
         for servo, start, end in zip(servos, prev, seq):
+            print(f"{servo} {start} {end}")
             self.translate.start = start
             self.translate.end = end
             result.append(self.tick(servo))
@@ -237,8 +238,9 @@ class ChimneySweepers(ServoTickBase):
 
         count = self.cluster.count()
         for servo in range(count):
-            self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
-            time.sleep_ms(500)
+            self.cluster.to_min()
+            #self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
+            time.sleep_ms(1000)
 
     def step(self) -> None:
         """Step servo position."""
