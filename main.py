@@ -171,6 +171,7 @@ class Linear(TranslateBase):
 
 
 class ServoTickBase:
+    """Servo tick base representation."""
 
     start_ms: int = 0
 
