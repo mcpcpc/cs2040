@@ -225,7 +225,7 @@ class ChimneySweepers(ServoTickBase):
         """Tick all."""
         
         result = []
-        servos = list(range(self.cluster.count()))
+        servos = range(self.cluster.count())
         for servo, start, end in zip(servos, prev, seq):
             print(f"{servo} {start} {end}")
             self.translate.start = start
