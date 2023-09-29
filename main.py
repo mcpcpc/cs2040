@@ -26,7 +26,7 @@ def create_servo_cluster() -> ServoCluster:
 
     gc.collect()
     start = servo2040.SERVO_1
-    end = servo2040.SERVO_8
+    end = servo2040.SERVO_2
     pins = list(range(start, end + 1))
     return ServoCluster(0, 0, pins)
 
@@ -216,10 +216,13 @@ class ServoTickBase:
 class ChimneySweepers(ServoTickBase):
     """Chimney sweepers representation."""
 
-    sequence: list = [[-1.0, 1.0], [1.0, -1.0]]
+    sequence: list = [
+        [-1.0, 1.0],
+        [1.0, -1.0],
+    ]
 
     def tick_all(self, seq: list, prev: list) -> list[bool]:
-        """"""
+        """Tick all."""
         
         result = []
         servos = list(range(self.cluster.count()))
@@ -235,7 +238,7 @@ class ChimneySweepers(ServoTickBase):
         count = self.cluster.count()
         for servo in range(count):
             self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
-            time.sleep_ms(1000)
+            time.sleep_ms(500)
 
     def step(self) -> None:
         """Step servo position."""
@@ -243,9 +246,8 @@ class ChimneySweepers(ServoTickBase):
         self.start_ms = time.ticks_ms()
         for s, seq in enumerate(self.sequence):
             prev = self.sequence[s - 1]
-            print(f"{prev}->{seq}")
-            self.initialize()
             status = [False] * self.cluster.count()
+            self.initialize()
             while not all(status):
                 status = self.tick_all(seq, prev)
 
