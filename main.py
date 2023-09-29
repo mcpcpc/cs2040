@@ -163,14 +163,8 @@ class TranslateBase:
         return a * (self.end - self.start) + self.start
 
 
-class Linear(TranslateBase):
-    """Linear translation representation."""
-
-    def function(self, t: float) -> float:
-        return t
-
-
 class Ease_out_quad(TranslateBase):
+
     def function(self, t: float) -> float:
         return -(t * (t - 2))
 
