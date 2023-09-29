@@ -146,7 +146,7 @@ class TranslateBase:
 
     start: float = -1.0
     end: float = 1.0
-    duration_ms: int = 10000
+    duration_ms: int = 3000
 
     def __call__(self, time_ms: int) -> float:
         return self.ease(time_ms)
@@ -235,24 +235,32 @@ class ServoTickBase:
     def tick_initialize(self) -> None:
         """Tick initialization."""
 
-        self.start_ms = 0
+        self.start_ms = time.ticks_ms()
 
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
 
-        ellapsed_ms = time.ticks_diff(
-            time.ticks_ms(),
-            self.start_ms,
-        )
+        ellapsed_ms = time.ticks_ms() - self.start_ms
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
-            self.cluster.to_percent(servo, position)
+            self.cluster.to_percent(
+                servo,
+                position,
+                self.translate.start,
+                self.translate.end,
+            )
             return True
         position = self.translate.ease(ellapsed_ms)
-        self.cluster.to_percent(servo, position)
+        self.cluster.to_percent(
+            servo,
+            position,
+            self.translate.start,
+            self.translate.end,
+        )
         if position == self.translate.end:
             return True
         return False
+
 
 
 class ChimneySweepers(ServoTickBase):
