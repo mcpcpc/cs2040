@@ -26,7 +26,7 @@ def create_servo_cluster() -> ServoCluster:
 
     gc.collect()
     start = servo2040.SERVO_1
-    end = servo2040.SERVO_2
+    end = servo2040.SERVO_6
     pins = list(range(start, end + 1))
     return ServoCluster(0, 0, pins)
 
@@ -197,16 +197,16 @@ class ServoTickBase:
             self.cluster.to_percent(
                 servo,
                 position,
-                self.translate.start,
-                self.translate.end,
+                -1.0,
+                1.0,
             )
             return True
         position = self.translate.ease(ellapsed_ms)
         self.cluster.to_percent(
             servo,
             position,
-            self.translate.start,
-            self.translate.end,
+            -1.0,
+            1.0,
         )
         if position == self.translate.end:
             return True
@@ -227,8 +227,8 @@ class ChimneySweepers(ServoTickBase):
 
         count = self.cluster.count()
         for servo in range(count):
-            self.cluster.to_min()
-            #self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
+            #self.cluster.to_min()
+            self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
             time.sleep_ms(1000)
 
     def tick_all(self, seq: list, prev: list) -> list[bool]:
@@ -237,7 +237,6 @@ class ChimneySweepers(ServoTickBase):
         result = []
         servos = range(self.cluster.count())
         for servo, start, end in zip(servos, prev, seq):
-            print(f"{servo} {start} {end}")
             self.translate.start = start
             self.translate.end = end
             result.append(self.tick(servo))
@@ -246,7 +245,6 @@ class ChimneySweepers(ServoTickBase):
     def step(self) -> None:
         """Step servo position."""
 
-        self.start_ms = time.ticks_ms()
         for s, seq in enumerate(self.sequence):
             prev = self.sequence[s - 1]
             status = [False] * self.cluster.count()
@@ -259,7 +257,6 @@ class ChimneySweepers(ServoTickBase):
 
         while True:
             self.step()
-            time.sleep_ms(200)
 
 
 def main():
