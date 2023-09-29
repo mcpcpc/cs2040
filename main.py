@@ -146,7 +146,7 @@ class TranslateBase:
 
     start: float = -1.0
     end: float = 1.0
-    duration_ms: int = 3000
+    duration_ms: int = 2000
 
     def __call__(self, time_ms: int) -> float:
         return self.ease(time_ms)
@@ -170,56 +170,6 @@ class Linear(TranslateBase):
         return t
 
 
-class SequenceBase:
-    """Sequence base representation."""
-
-    take: int = 8  # sequence length per iteration
-    minimum: float = -1.0  # mininum position value
-    maximum: float = 1.0  # maximum position value
-
-    def __call__(self):
-        result = self.generator(self.sequence())
-        return result
-
-    def sequence(self) -> bytearray:
-        """User implemented sequence."""
-
-        return NotImplementedError
-
-    def normalize(self, value: int) -> float:
-        """Normalize sequence value."""
-
-        normal_value = value / 0xFF
-        return float(normal_value)
-
-    def position(self, value: float) -> float:
-        """Compute position from normalized value."""
-
-        delta = self.maximum - self.minimum
-        position = value * delta + self.minimum
-        return float(position)
-
-    def generator(self, value: bytearray):
-        """Positional array generator."""
-
-        length = len(value)
-        for i in range(0, length, self.take):
-            seq = value[i:i + self.take]
-            norm = list(map(self.normalize, seq))
-            yield list(map(self.position, norm))
-
-
-class AlternatingOctet(SequenceBase):
-    """Alternating octet."""
-
-    def sequence(self) -> bytearray:
-        seq = [
-            0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-            0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00
-        ]
-        return bytearray(seq)
-
-
 class ServoTickBase:
 
     start_ms: int = 0
@@ -232,8 +182,8 @@ class ServoTickBase:
         self.cluster = cluster
         self.translate = translate
 
-    def tick_initialize(self) -> None:
-        """Tick initialization."""
+    def initialize(self) -> None:
+        """Initialization."""
 
         self.start_ms = time.ticks_ms()
 
@@ -266,31 +216,38 @@ class ServoTickBase:
 class ChimneySweepers(ServoTickBase):
     """Chimney sweepers representation."""
 
-    sequence: SequenceBase = AlternatingOctet()
+    sequence: list = [[-1.0, 1.0], [1.0, -1.0]]
 
-    def tick_all(self, servos: list, seq: list, prev: list) -> list[bool]:
+    def tick_all(self, seq: list, prev: list) -> list[bool]:
         """"""
         
         result = []
-        for servo, start, end in zip(servos, seq, prev):
+        servos = list(range(self.cluster.count()))
+        for servo, start, end in zip(servos, prev, seq):
             self.translate.start = start
             self.translate.end = end
             result.append(self.tick(servo))
         return result
 
+    def setup(self) -> None:
+        """Servo setup."""
+
+        count = self.cluster.count()
+        for servo in range(count):
+            self.cluster.to_percent(servo, -1.0, -1.0, 1.0)
+            time.sleep_ms(1000)
+
     def step(self) -> None:
         """Step servo position."""
 
         self.start_ms = time.ticks_ms()
-        sequences = list(self.sequence())
-        servos = list(range(self.sequence.take))
-        for s, seq in enumerate(sequences):
-            prev = sequences[s - 1]
-            self.tick_initialize()
-            status = [False] * self.sequence.take
+        for s, seq in enumerate(self.sequence):
+            prev = self.sequence[s - 1]
+            print(f"{prev}->{seq}")
+            self.initialize()
+            status = [False] * self.cluster.count()
             while not all(status):
-                status = self.tick_all(servos, seq, prev)
-                time.sleep_ms(20)
+                status = self.tick_all(seq, prev)
 
     def run(self) -> None:
         """Run servo motors in process loop."""
@@ -311,6 +268,7 @@ def main():
     sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     _thread.start_new_thread(meter.run, ())
+    sweepers.setup()
     sweepers.run()
 
 
