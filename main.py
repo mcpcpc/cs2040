@@ -173,6 +173,8 @@ class ServoTickBase:
     """Servo tick base representation."""
 
     start_ms: int = 0
+    min_position: float = -1.0
+    max_position: float = 1.0
 
     def __init__(
         self,
@@ -187,26 +189,26 @@ class ServoTickBase:
 
         self.start_ms = time.ticks_ms()
 
+    def to_position(self, servo: int, position: float) -> None:
+        """Trigger servo to position."""
+
+        self.cluster.to_percent(
+            servo,
+            position,
+            self.min_position,
+            self.max_position,
+        )
+
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
 
         ellapsed_ms = time.ticks_ms() - self.start_ms
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
-            self.cluster.to_percent(
-                servo,
-                position,
-                -1.0,
-                1.0,
-            )
+            self.to_position(servo, position)
             return True
         position = self.translate.ease(ellapsed_ms)
-        self.cluster.to_percent(
-            servo,
-            position,
-            -1.0,
-            1.0,
-        )
+        self.to_position(servo, position)
         if position == self.translate.end:
             return True
         return False
