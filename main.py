@@ -87,10 +87,22 @@ class LoadCurrentMeter:
         self.mux = mux
 
     def get_hue(self, index: int) -> float:
-        """Computer and return LED meter hue value."""
+        """Compute and return color hue."""
 
         hue = (1.0 - index / (self.num_leds - 1)) * 0.333
         return float(hue)
+
+    def get_saturation(self) -> float:
+        """Compute and return color saturation."""
+
+        return 1.0
+
+    def get_value(self, state_on: bool) -> float:
+        """Compute and return color value"""
+
+        if state_on:
+            return self.brightness_on
+        return self.brightness_off
 
     def get_level(self, index: int) -> float:
         """Computer and return LED meter level value."""
@@ -117,21 +129,15 @@ class LoadCurrentMeter:
         percent = self.get_load(current)
         for i in range(self.num_leds):
             hue = self.get_hue(i)
+            saturation = self.get_saturation()
             level = self.get_level(i)
-            if percent >= level:
-                self.leds.set_hsv(
-                    i,
-                    hue,
-                    1.0,
-                    self.brightness_on,
-                )
-            else:
-                self.leds.set_hsv(
-                    i,
-                    hue,
-                    1.0,
-                    self.brightness_off,
-                ) 
+            value = self.get_value(percent >= level)
+            self.leds.set_hsv(
+                i,
+                hue,
+                saturation,
+                value,
+            )
 
     def run(self) -> None:
         """Run servo current meter in loop."""
@@ -223,7 +229,7 @@ class ChimneySweepers(ServoTickBase):
         [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0],
     ]
 
-    def setup(self) -> None:
+    def initialize(self) -> None:
         """Servo setup."""
 
         count = self.cluster.count()
@@ -255,6 +261,7 @@ class ChimneySweepers(ServoTickBase):
     def run(self) -> None:
         """Run servo motors in process loop."""
 
+        self.initialize()
         while True:
             self.step()
 
@@ -270,7 +277,6 @@ def main():
     sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     _thread.start_new_thread(meter.run, ())
-    sweepers.setup()
     sweepers.run()
 
 
