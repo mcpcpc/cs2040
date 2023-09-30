@@ -14,6 +14,7 @@ import machine
 import time
 import _thread
 
+
 from pimoroni import Analog
 from pimoroni import AnalogMux
 from plasma import WS2812
@@ -34,38 +35,35 @@ def create_servo_cluster() -> ServoCluster:
 def create_leds() -> WS2812:
     """Create and return WS2812 array."""
  
-    leds = WS2812(
+    return WS2812(
         num_leds=servo2040.NUM_LEDS,
         pio=1,
         sm=0,
         dat=servo2040.LED_DATA,
     )
-    return leds
 
 
 def create_current_adc() -> Analog:
     """Create and return current ADC."""
 
-    current_adc = Analog(
+    return Analog(
         servo2040.SHARED_ADC,
         servo2040.CURRENT_GAIN,
         servo2040.SHUNT_RESISTOR,
         servo2040.CURRENT_OFFSET,
     )
-    return current_adc
 
 
 def create_analog_mux() -> AnalogMux:
     """Create and return analog multiplexer."""
 
     muxed_pin = machine.Pin(servo2040.SHARED_ADC)
-    analog_mux = AnalogMux(
+    return AnalogMux(
         servo2040.ADC_ADDR_0,
         servo2040.ADC_ADDR_1,
         servo2040.ADC_ADDR_2,
         muxed_pin=muxed_pin,
     )
-    return analog_mux
 
 
 class LoadCurrentMeter:
