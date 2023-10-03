@@ -69,7 +69,8 @@ def create_analog_mux() -> AnalogMux:
 class LoadCurrentMeter:
     """Servo current meter representation."""
 
-    max_load = 3.0 # amperes
+    max_amperes = 3.0 # rated
+    limit_amperes = 2.0 # safety factor
     num_leds = servo2040.NUM_LEDS 
     brightness_on = 0.4
     brightness_off = 0.1
@@ -99,7 +100,7 @@ class LoadCurrentMeter:
     def get_load(self, value: float) -> float:
         """Computer and return current load utilization."""
 
-        load = value / self.max_load
+        load = value / self.max_amperes
         return float(load)
 
     def initialize(self) -> None:
@@ -112,7 +113,7 @@ class LoadCurrentMeter:
         """Step through current measuremsent process."""
 
         current = self.adc.read_current()
-        if current > 1.0:
+        if current > self.limit_amperes:
             return False
         percent = self.get_load(current)
         for i in range(self.num_leds):
@@ -134,7 +135,7 @@ class LoadCurrentMeter:
                 )
         return True 
 
-    def run(self, lock: None) -> None:
+    def run(self, lock: _thread.Lock = None) -> None:
         """Run servo current meter in loop."""
 
         lock.acquire()
@@ -255,11 +256,11 @@ class ChimneySweepers(ServoTickBase):
             while not all(status):
                 status = self.tick_all(seq, prev)
 
-    def run(self, lock: None) -> None:
+    def run(self, lock: _thread.LockType) -> None:
         """Run servo motors in process loop."""
 
-        if isinstance(lock, _thread.Lock):
-            while not safety_lock.acquire(0):
+        if isinstance(lock, _thread.LockType):
+            while not lock.acquire(0):
                 self.step()
 
 
@@ -277,7 +278,7 @@ def main():
     _thread.start_new_thread(meter.run, (lock,))
     time.sleep_ms(200) # allow time for meter lock
     sweepers.setup()
-    sweepers.run()
+    sweepers.run(lock)
 
 
 if __name__ == "__main__":
