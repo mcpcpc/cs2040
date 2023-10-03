@@ -108,10 +108,12 @@ class LoadCurrentMeter:
         self.mux.select(servo2040.CURRENT_SENSE_ADDR)
         self.leds.start()
 
-    def step(self) -> None:
+    def step(self) -> bool:
         """Step through current measuremsent process."""
 
         current = self.adc.read_current()
+        if current > 1.0:
+            return False
         percent = self.get_load(current)
         for i in range(self.num_leds):
             hue = self.get_hue(i)
@@ -129,14 +131,17 @@ class LoadCurrentMeter:
                     hue,
                     1.0,
                     self.brightness_off,
-                ) 
+                )
+        return True 
 
-    def run(self) -> None:
+    def run(self, lock: None) -> None:
         """Run servo current meter in loop."""
 
+        lock.acquire()
         self.initialize()
-        while True:
-            self.step()
+        while self.step():
+            continue
+        lock.release() 
 
 
 class TranslateBase:
@@ -250,11 +255,12 @@ class ChimneySweepers(ServoTickBase):
             while not all(status):
                 status = self.tick_all(seq, prev)
 
-    def run(self) -> None:
+    def run(self, lock: None) -> None:
         """Run servo motors in process loop."""
 
-        while True:
-            self.step()
+        if isinstance(lock, _thread.Lock):
+            while not safety_lock.acquire(0):
+                self.step()
 
 
 def main():
@@ -267,7 +273,9 @@ def main():
     translate = Ease_out_quad()
     sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
-    _thread.start_new_thread(meter.run, ())
+    lock = _thread.allocate_lock()
+    _thread.start_new_thread(meter.run, (lock,))
+    time.sleep_ms(200) # allow time for meter lock
     sweepers.setup()
     sweepers.run()
 
