@@ -210,12 +210,12 @@ class ServoTickBase:
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
             self.to_position(servo, position)
-            return True
+            return True  # exceeded ellapsed_time
         position = self.translate.ease(ellapsed_ms)
         self.to_position(servo, position)
         if position == self.translate.end:
-            return True
-        return False
+            return True  # reached end position
+        return False  # next tick
 
 
 
