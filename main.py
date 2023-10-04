@@ -14,7 +14,6 @@ import machine
 import time
 import _thread
 
-
 from pimoroni import Analog
 from pimoroni import AnalogMux
 from plasma import WS2812
