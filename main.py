@@ -14,7 +14,6 @@ import machine
 import time
 import _thread
 
-
 from pimoroni import Analog
 from pimoroni import AnalogMux
 from plasma import WS2812
@@ -69,7 +68,8 @@ def create_analog_mux() -> AnalogMux:
 class LoadCurrentMeter:
     """Servo current meter representation."""
 
-    max_load = 3.0 # amperes
+    max_amperes = 3.0 # rated
+    limit_amperes = 2.0 # safety factor
     num_leds = servo2040.NUM_LEDS 
     brightness_on = 0.4
     brightness_off = 0.1
@@ -99,7 +99,7 @@ class LoadCurrentMeter:
     def get_load(self, value: float) -> float:
         """Computer and return current load utilization."""
 
-        load = value / self.max_load
+        load = value / self.max_amperes
         return float(load)
 
     def initialize(self) -> None:
@@ -108,10 +108,12 @@ class LoadCurrentMeter:
         self.mux.select(servo2040.CURRENT_SENSE_ADDR)
         self.leds.start()
 
-    def step(self) -> None:
+    def step(self) -> bool:
         """Step through current measuremsent process."""
 
         current = self.adc.read_current()
+        if current > self.limit_amperes:
+            return False
         percent = self.get_load(current)
         for i in range(self.num_leds):
             hue = self.get_hue(i)
@@ -129,14 +131,17 @@ class LoadCurrentMeter:
                     hue,
                     1.0,
                     self.brightness_off,
-                ) 
+                )
+        return True 
 
-    def run(self) -> None:
+    def run(self, lock: _thread.Lock = None) -> None:
         """Run servo current meter in loop."""
 
+        lock.acquire()
         self.initialize()
-        while True:
-            self.step()
+        while self.step():
+            continue
+        lock.release() 
 
 
 class TranslateBase:
@@ -161,10 +166,11 @@ class TranslateBase:
         return a * (self.end - self.start) + self.start
 
 
-class Ease_out_quad(TranslateBase):
+class Ease_in_quad(TranslateBase):
+    """Quadratic ease-in function."""
 
     def function(self, t: float) -> float:
-        return -(t * (t - 2))
+        return t * t
 
 
 class ServoTickBase:
@@ -204,12 +210,12 @@ class ServoTickBase:
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
             self.to_position(servo, position)
-            return True
+            return True  # exceeded ellapsed_time
         position = self.translate.ease(ellapsed_ms)
         self.to_position(servo, position)
         if position == self.translate.end:
-            return True
-        return False
+            return True  # reached end position
+        return False  # next tick
 
 
 
@@ -250,11 +256,12 @@ class ChimneySweepers(ServoTickBase):
             while not all(status):
                 status = self.tick_all(seq, prev)
 
-    def run(self) -> None:
+    def run(self, lock: _thread.LockType) -> None:
         """Run servo motors in process loop."""
 
-        while True:
-            self.step()
+        if isinstance(lock, _thread.LockType):
+            while not lock.acquire(0):
+                self.step()
 
 
 def main():
@@ -264,12 +271,14 @@ def main():
     leds = create_leds()
     mux = create_analog_mux()
     cluster = create_servo_cluster()
-    translate = Ease_out_quad()
+    translate = Ease_in_quad()
     sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
-    _thread.start_new_thread(meter.run, ())
+    lock = _thread.allocate_lock()
+    _thread.start_new_thread(meter.run, (lock,))
+    time.sleep_ms(200) # allow time for meter lock
     sweepers.setup()
-    sweepers.run()
+    sweepers.run(lock)
 
 
 if __name__ == "__main__":
