@@ -166,10 +166,11 @@ class TranslateBase:
         return a * (self.end - self.start) + self.start
 
 
-class Ease_out_quad(TranslateBase):
+class Ease_in_quad(TranslateBase):
+    """Quadratic ease-in function."""
 
     def function(self, t: float) -> float:
-        return -(t * (t - 2))
+        return t * t
 
 
 class ServoTickBase:
@@ -270,7 +271,7 @@ def main():
     leds = create_leds()
     mux = create_analog_mux()
     cluster = create_servo_cluster()
-    translate = Ease_out_quad()
+    translate = Ease_in_quad()
     sweepers = ChimneySweepers(cluster, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     lock = _thread.allocate_lock()
