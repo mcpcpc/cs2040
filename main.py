@@ -157,14 +157,14 @@ class Ease_in_quad(TranslateBase):
         return t * t
 
 
-class Sequences:
+class SequenceBase:
     """Sequences representation."""
 
     deque: collections.deque = collections.deque()
 
-    def __init__(self, sequences: list) -> None:
-        for sequence in sequences:
-            self.deque.append(sequence)
+    def __init__(self, items: list) -> None:
+        for item in items:
+            self.deque.append(item)
 
     def rotate(self):
         """Rotate head to tail."""
@@ -176,11 +176,7 @@ class Sequences:
 
 class ChimneySweepers:
     """Chimney sweepers representation."""
-
-    sequence: list = [
-        [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],
-        [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0],
-    ]
+ 
     start_ms: int = 0
     min_position: float = -1.0
     max_position: float = 1.0
@@ -188,9 +184,11 @@ class ChimneySweepers:
     def __init__(
         self,
         cluster: ServoCluster,
-        translate: TranslateBase
+        sequences: SequenceBase,
+        translate: TranslateBase,
     ) -> None:
         self.cluster = cluster
+        self.sequences = sequences
         self.translate = translate
 
     def to_position(self, servo: int, position: float) -> None:
@@ -206,7 +204,10 @@ class ChimneySweepers:
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
 
-        ellapsed_ms = time.ticks_ms() - self.start_ms
+        ellapsed_ms = time.ticks_diff(
+            time.ticks_ms(),
+            self.start_ms,
+        )
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
             self.to_position(servo, position)
@@ -225,32 +226,25 @@ class ChimneySweepers:
             self.cluster.to_min(servo)
             time.sleep_ms(500)
 
-    def tick_all(self, seq: list, prev: list) -> list[bool]:
-        """Tick all."""
-        
-        status = True
-        servos = range(self.cluster.count())
-        for servo, start, end in zip(servos, prev, seq):
-            self.translate.start = start
-            self.translate.end = end
-            status = status and self.tick(servo)
-        return status
-
-    def step(self) -> None:
+    def step(self, sequences: list) -> None:
         """Step servo position."""
 
-        for s, seq in enumerate(self.sequence):
-            prev = self.sequence[s - 1]
-            status = False
-            self.start_ms = time.ticks_ms()
-            while not all(status):
-                status = self.tick_all(seq, prev)
+        status = False
+        self.start_ms = time.ticks_ms()
+        servos = range(self.cluster.count())
+        while not all(status):
+            status = True
+            for servo, start, end in sequences:
+                self.translate.start = start
+                self.translate.end = end
+                status = status and self.tick(servo)
 
     def run(self, lock: _thread.LockType) -> None:
         """Run servo motors in process loop."""
 
         while not lock.acquire(0):
-            self.step()
+            sequences = self.sequences.rotate()
+            self.step(sequences)
 
 
 def main():
@@ -260,8 +254,32 @@ def main():
     leds = create_leds()
     mux = create_analog_mux()
     cluster = create_servo_cluster()
+    sequences = SequenceBase(
+        items=[
+            [
+                (0, -1.0, 1.0),
+                (1, 1.0, -1.0),
+                (2, -1.0, 1.0),
+                (3, 1.0, -1.0),
+                (4, -1.0, 1.0),
+                (5, 1.0, -1.0),
+                (6, -1.0, 1.0),
+                (7, 1.0, -1.0),
+            ],
+            [
+                (0, 1.0, -1.0),
+                (1, -1.0, 1.0),
+                (2, 1.0, -1.0),
+                (3, -1.0, 1.0),
+                (4, 1.0, -1.0),
+                (5, -1.0, 1.0),
+                (6, 1.0, -1.0),
+                (7, -1.0, 1.0),
+            ],
+        ]
+    )
     translate = Ease_in_quad()
-    sweepers = ChimneySweepers(cluster, translate)
+    sweepers = ChimneySweepers(cluster, sequences, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     lock = _thread.allocate_lock()
     _thread.start_new_thread(meter.run, (lock,))
