@@ -228,20 +228,20 @@ class ChimneySweepers:
     def tick_all(self, seq: list, prev: list) -> list[bool]:
         """Tick all."""
         
-        result = []
+        status = True
         servos = range(self.cluster.count())
         for servo, start, end in zip(servos, prev, seq):
             self.translate.start = start
             self.translate.end = end
-            result.append(self.tick(servo))
-        return result
+            status = status and self.tick(servo)
+        return status
 
     def step(self) -> None:
         """Step servo position."""
 
         for s, seq in enumerate(self.sequence):
             prev = self.sequence[s - 1]
-            status = [False] * self.cluster.count()
+            status = False
             self.start_ms = time.ticks_ms()
             while not all(status):
                 status = self.tick_all(seq, prev)
