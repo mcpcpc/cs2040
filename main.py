@@ -174,9 +174,13 @@ class Sequences:
         return left
 
 
-class ServoTickBase:
-    """Servo tick base representation."""
+class ChimneySweepers(ServoTickBase):
+    """Chimney sweepers representation."""
 
+    sequence: list = [
+        [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],
+        [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0],
+    ]
     start_ms: int = 0
     min_position: float = -1.0
     max_position: float = 1.0
@@ -188,11 +192,6 @@ class ServoTickBase:
     ) -> None:
         self.cluster = cluster
         self.translate = translate
-
-    def initialize(self) -> None:
-        """Initialization."""
-
-        self.start_ms = time.ticks_ms()
 
     def to_position(self, servo: int, position: float) -> None:
         """Trigger servo to position."""
@@ -217,16 +216,6 @@ class ServoTickBase:
         if position == self.translate.end:
             return True  # reached end position
         return False  # next tick
-
-
-
-class ChimneySweepers(ServoTickBase):
-    """Chimney sweepers representation."""
-
-    sequence: list = [
-        [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],
-        [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0],
-    ]
 
     def setup(self) -> None:
         """Servo setup."""
@@ -253,7 +242,7 @@ class ChimneySweepers(ServoTickBase):
         for s, seq in enumerate(self.sequence):
             prev = self.sequence[s - 1]
             status = [False] * self.cluster.count()
-            self.initialize()
+            self.start_ms = time.ticks_ms()
             while not all(status):
                 status = self.tick_all(seq, prev)
 
