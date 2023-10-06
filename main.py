@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 __license__ = "BSD-3-Clause"
 __status__ = "Production"
 
+import collections
 import gc
 import machine
 import time
@@ -154,6 +155,23 @@ class Ease_in_quad(TranslateBase):
 
     def function(self, t: float) -> float:
         return t * t
+
+
+class Sequences:
+    """Sequences representation."""
+
+    deque: collections.deque = collections.deque()
+
+    def __init__(self, sequences: list) -> None:
+        for sequence in sequences:
+            self.deque.append(sequence)
+
+    def rotate(self):
+        """Rotate head to tail."""
+
+        left = self.deque.popleft()
+        self.deque.append(left)
+        return left
 
 
 class ServoTickBase:
