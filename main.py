@@ -174,7 +174,7 @@ class Sequences:
         return left
 
 
-class ChimneySweepers(ServoTickBase):
+class ChimneySweepers:
     """Chimney sweepers representation."""
 
     sequence: list = [
