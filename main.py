@@ -249,9 +249,8 @@ class ChimneySweepers:
     def run(self, lock: _thread.LockType) -> None:
         """Run servo motors in process loop."""
 
-        if isinstance(lock, _thread.LockType):
-            while not lock.acquire(0):
-                self.step()
+        while not lock.acquire(0):
+            self.step()
 
 
 def main():
