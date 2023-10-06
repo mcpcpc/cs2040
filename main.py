@@ -85,22 +85,18 @@ class LoadCurrentMeter:
         self.mux = mux
 
     def get_hue(self, index: int) -> float:
-        """Computer and return LED meter hue value."""
+        """Compute and return LED HSV color hue."""
 
         hue = (1.0 - index / (self.num_leds - 1)) * 0.333
         return float(hue)
 
-    def get_level(self, index: int) -> float:
-        """Computer and return LED meter level value."""
+    def get_value(self, index: int, load: float) -> None:
+        """Compute and return LED HSV color value."""
 
         level = (index + 0.5) / self.num_leds
-        return float(level)
-
-    def get_load(self, value: float) -> float:
-        """Computer and return current load utilization."""
-
-        load = value / self.max_amperes
-        return float(load)
+        if load >= level:
+            return self.brightness_on
+        return self.brightness_off
 
     def initialize(self) -> None:
         """Initialize current meter."""
@@ -109,29 +105,16 @@ class LoadCurrentMeter:
         self.leds.start()
 
     def step(self) -> bool:
-        """Step through current measuremsent process."""
+        """Step through current measurement process."""
 
         current = self.adc.read_current()
         if current > self.limit_amperes:
             return False
-        percent = self.get_load(current)
+        load = current / self.max_amperes
         for i in range(self.num_leds):
-            hue = self.get_hue(i)
-            level = self.get_level(i)
-            if percent >= level:
-                self.leds.set_hsv(
-                    i,
-                    hue,
-                    1.0,
-                    self.brightness_on,
-                )
-            else:
-                self.leds.set_hsv(
-                    i,
-                    hue,
-                    1.0,
-                    self.brightness_off,
-                )
+            h = self.get_hue(i)
+            v = self.get_value(i, load)
+            self.leds.set_hsv(i, h, 1.0, v)
         return True 
 
     def run(self, lock: _thread.Lock = None) -> None:
