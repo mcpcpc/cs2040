@@ -283,7 +283,7 @@ def main():
     meter = LoadCurrentMeter(leds, adc, mux)
     lock = _thread.allocate_lock()
     _thread.start_new_thread(meter.run, (lock,))
-    time.sleep_ms(200) # allow time for meter lock
+    time.sleep_ms(200)  # allow time for meter lock
     sweepers.setup()
     sweepers.run(lock)
 
