@@ -234,9 +234,10 @@ class ChimneySweepers:
         servos = range(self.cluster.count())
         while not all(status):
             status = True
-            for servo, start, end in sequences:
+            for servo, start, end, duration in sequences:
                 self.translate.start = start
                 self.translate.end = end
+                self.translate.duration_ms = duration
                 status = status and self.tick(servo)
 
     def run(self, lock: _thread.LockType) -> None:
@@ -257,24 +258,24 @@ def main():
     sequences = SequenceBase(
         items=[
             [
-                (0, -1.0, 1.0),
-                (1, 1.0, -1.0),
-                (2, -1.0, 1.0),
-                (3, 1.0, -1.0),
-                (4, -1.0, 1.0),
-                (5, 1.0, -1.0),
-                (6, -1.0, 1.0),
-                (7, 1.0, -1.0),
+                (0, -1.0, 1.0, 5000),
+                (1, 1.0, -1.0, 5000),
+                (2, -1.0, 1.0, 5000),
+                (3, 1.0, -1.0, 5000),
+                (4, -1.0, 1.0, 5000),
+                (5, 1.0, -1.0, 5000),
+                (6, -1.0, 1.0, 5000),
+                (7, 1.0, -1.0, 5000),
             ],
             [
-                (0, 1.0, -1.0),
-                (1, -1.0, 1.0),
-                (2, 1.0, -1.0),
-                (3, -1.0, 1.0),
-                (4, 1.0, -1.0),
-                (5, -1.0, 1.0),
-                (6, 1.0, -1.0),
-                (7, -1.0, 1.0),
+                (0, 1.0, -1.0, 5000),
+                (1, -1.0, 1.0, 5000),
+                (2, 1.0, -1.0, 5000),
+                (3, -1.0, 1.0, 5000),
+                (4, 1.0, -1.0, 5000),
+                (5, -1.0, 1.0, 5000),
+                (6, 1.0, -1.0, 5000),
+                (7, -1.0, 1.0, 5000),
             ],
         ]
     )
