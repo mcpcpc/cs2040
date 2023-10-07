@@ -99,12 +99,6 @@ class LoadCurrentMeter:
             return self.brightness_on
         return self.brightness_off
 
-    def initialize(self) -> None:
-        """Initialize current meter."""
-
-        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
-        self.leds.start()
-
     def step(self) -> bool:
         """Step through current measurement process."""
 
@@ -122,7 +116,8 @@ class LoadCurrentMeter:
         """Run servo current meter in loop."""
 
         lock.acquire()
-        self.initialize()
+        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
+        self.leds.start()
         while self.step():
             continue
         lock.release() 
@@ -221,14 +216,6 @@ class ChimneySweepers:
     def setup(self) -> None:
         """Servo setup."""
 
-        count = self.cluster.count()
-        for servo in range(count):
-            self.cluster.to_min(servo)
-            time.sleep_ms(500)
-
-    def step(self, sequences: list) -> None:
-        """Step servo position."""
-
         status = False
         self.start_ms = time.ticks_ms()
         servos = range(self.cluster.count())
@@ -243,6 +230,10 @@ class ChimneySweepers:
     def run(self, lock: _thread.LockType) -> None:
         """Run servo motors in process loop."""
 
+        count = self.cluster.count()
+        for servo in range(count):
+            self.cluster.to_min(servo)
+            time.sleep_ms(500)
         while not lock.acquire(0):
             sequences = self.sequences.rotate()
             self.step(sequences)
@@ -285,7 +276,6 @@ def main():
     lock = _thread.allocate_lock()
     _thread.start_new_thread(meter.run, (lock,))
     time.sleep_ms(200)  # allow time for meter lock
-    sweepers.setup()
     sweepers.run(lock)
 
 
