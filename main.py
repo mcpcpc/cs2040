@@ -161,12 +161,12 @@ class SequenceBase:
         for item in items:
             self.deque.append(item)
 
-    def rotate(self):
-        """Rotate head to tail."""
+    def __call__(self):
+        """Rotate head to tail and return head."""
 
-        left = self.deque.popleft()
-        self.deque.append(left)
-        return left
+        head = self.deque.popleft()
+        self.deque.append(head)
+        return head
 
 
 class ChimneySweepers:
@@ -235,7 +235,7 @@ class ChimneySweepers:
             self.cluster.to_min(servo)
             time.sleep_ms(500)
         while not lock.acquire(0):
-            sequences = self.sequences.rotate()
+            sequences = self.sequences()
             self.step(sequences)
 
 
