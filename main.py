@@ -91,7 +91,7 @@ class LoadCurrentMeter:
         hue = (1.0 - index / (self.num_leds - 1)) * 0.333
         return float(hue)
 
-    def get_value(self, index: int, load: float) -> None:
+    def get_value(self, index: int, load: float) -> float:
         """Compute and return LED HSV color value."""
 
         level = (index + 0.5) / self.num_leds
@@ -155,9 +155,9 @@ class Ease_in_quad(TranslateBase):
 class SequenceBase:
     """Sequences representation."""
 
-    deque: collections.deque = collections.deque()
-
     def __init__(self, items: list) -> None:
+        maxlen = len(items)
+        self.deque = collections.deque((), maxlen)
         for item in items:
             self.deque.append(item)
 
@@ -166,6 +166,7 @@ class SequenceBase:
 
         head = self.deque.popleft()
         self.deque.append(head)
+        print(head)
         return head
 
 
@@ -213,13 +214,13 @@ class ChimneySweepers:
             return True  # reached end position
         return False  # next tick
 
-    def setup(self) -> None:
+    def step(self, sequences: list) -> None:
         """Servo setup."""
 
         status = False
         self.start_ms = time.ticks_ms()
         servos = range(self.cluster.count())
-        while not all(status):
+        while not status:
             status = True
             for servo, start, end, duration in sequences:
                 self.translate.start = start
@@ -256,7 +257,6 @@ def main():
                 (4, -1.0, 1.0, 5000),
                 (5, 1.0, -1.0, 5000),
                 (6, -1.0, 1.0, 5000),
-                (7, 1.0, -1.0, 5000),
             ],
             [
                 (0, 1.0, -1.0, 5000),
@@ -266,7 +266,6 @@ def main():
                 (4, 1.0, -1.0, 5000),
                 (5, -1.0, 1.0, 5000),
                 (6, 1.0, -1.0, 5000),
-                (7, -1.0, 1.0, 5000),
             ],
         ]
     )
