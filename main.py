@@ -173,8 +173,6 @@ class ChimneySweepers:
     """Chimney sweepers representation."""
  
     start_ms: int = 0
-    min_position: float = -1.0
-    max_position: float = 1.0
 
     def __init__(
         self,
@@ -189,12 +187,7 @@ class ChimneySweepers:
     def to_position(self, servo: int, position: float) -> None:
         """Trigger servo to position."""
 
-        self.cluster.to_percent(
-            servo,
-            position,
-            self.min_position,
-            self.max_position,
-        )
+        self.cluster.to_percent(servo, position, -1.0, 1.0)
 
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
