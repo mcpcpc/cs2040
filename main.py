@@ -166,7 +166,6 @@ class SequenceBase:
 
         head = self.deque.popleft()
         self.deque.append(head)
-        print(head)
         return head
 
 
@@ -219,7 +218,6 @@ class ChimneySweepers:
 
         status = False
         self.start_ms = time.ticks_ms()
-        servos = range(self.cluster.count())
         while not status:
             status = True
             for servo, start, end, duration in sequences:
