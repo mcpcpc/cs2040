@@ -205,7 +205,7 @@ class ChimneySweepers:
         return False  # next tick
 
     def step(self, sequences: list) -> None:
-        """Servo setup."""
+        """Servo step."""
 
         status = False
         self.start_ms = time.ticks_ms()
@@ -217,13 +217,17 @@ class ChimneySweepers:
                 self.translate.duration_ms = duration
                 status = status and self.tick(servo)
 
-    def run(self, lock: _thread.LockType) -> None:
-        """Run servo motors in process loop."""
+    def setup(self) -> None:
+        """Servo setup."""
 
         count = self.cluster.count()
         for servo in range(count):
             self.cluster.to_min(servo)
             time.sleep_ms(500)
+
+    def run(self, lock: _thread.LockType) -> None:
+        """Run servo motors in process loop."""
+
         while not lock.acquire(0):
             sequences = self.sequences()
             self.step(sequences)
@@ -264,6 +268,7 @@ def main():
     lock = _thread.allocate_lock()
     _thread.start_new_thread(meter.run, (lock,))
     time.sleep_ms(200)  # allow time for meter lock
+    sweepers.setup()
     sweepers.run(lock)
 
 
