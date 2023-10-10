@@ -192,10 +192,8 @@ class ChimneySweepers:
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
 
-        ellapsed_ms = time.ticks_diff(
-            time.ticks_ms(),
-            self.start_ms,
-        )
+        ticks_ms = time.ticks_ms()
+        ellapsed_ms = time.ticks_diff(ticks_ms, self.start_ms)
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
             self.to_position(servo, position)
