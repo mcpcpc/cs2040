@@ -207,15 +207,15 @@ class ChimneySweepers:
     def step(self, sequences: list) -> None:
         """Servo step."""
 
-        status = False
+        status = [False]
         self.start_ms = time.ticks_ms()
-        while not status:
-            status = True
+        while not all(status):
+            status = []
             for servo, start, end, duration in sequences:
                 self.translate.start = start
                 self.translate.end = end
                 self.translate.duration_ms = duration
-                status = status and self.tick(servo)
+                status.append(self.tick(servo))
 
     def setup(self) -> None:
         """Servo setup."""
