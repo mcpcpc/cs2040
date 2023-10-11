@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 __license__ = "BSD-3-Clause"
 __status__ = "Production"
 
+import collections
 import gc
 import machine
 import time
@@ -85,60 +86,38 @@ class LoadCurrentMeter:
         self.mux = mux
 
     def get_hue(self, index: int) -> float:
-        """Computer and return LED meter hue value."""
+        """Compute and return LED HSV color hue."""
 
         hue = (1.0 - index / (self.num_leds - 1)) * 0.333
         return float(hue)
 
-    def get_level(self, index: int) -> float:
-        """Computer and return LED meter level value."""
+    def get_value(self, index: int, load: float) -> float:
+        """Compute and return LED HSV color value."""
 
         level = (index + 0.5) / self.num_leds
-        return float(level)
-
-    def get_load(self, value: float) -> float:
-        """Computer and return current load utilization."""
-
-        load = value / self.max_amperes
-        return float(load)
-
-    def initialize(self) -> None:
-        """Initialize current meter."""
-
-        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
-        self.leds.start()
+        if load >= level:
+            return self.brightness_on
+        return self.brightness_off
 
     def step(self) -> bool:
-        """Step through current measuremsent process."""
+        """Step through current measurement process."""
 
         current = self.adc.read_current()
         if current > self.limit_amperes:
             return False
-        percent = self.get_load(current)
+        load = current / self.max_amperes
         for i in range(self.num_leds):
-            hue = self.get_hue(i)
-            level = self.get_level(i)
-            if percent >= level:
-                self.leds.set_hsv(
-                    i,
-                    hue,
-                    1.0,
-                    self.brightness_on,
-                )
-            else:
-                self.leds.set_hsv(
-                    i,
-                    hue,
-                    1.0,
-                    self.brightness_off,
-                )
+            h = self.get_hue(i)
+            v = self.get_value(i, load)
+            self.leds.set_hsv(i, h, 1.0, v)
         return True 
 
     def run(self, lock: _thread.Lock = None) -> None:
         """Run servo current meter in loop."""
 
         lock.acquire()
-        self.initialize()
+        self.mux.select(servo2040.CURRENT_SENSE_ADDR)
+        self.leds.start()
         while self.step():
             continue
         lock.release() 
@@ -173,40 +152,48 @@ class Ease_in_quad(TranslateBase):
         return t * t
 
 
-class ServoTickBase:
-    """Servo tick base representation."""
+class SequenceBase:
+    """Sequences representation."""
 
+    def __init__(self, items: list) -> None:
+        maxlen = len(items)
+        self.deque = collections.deque((), maxlen)
+        for item in items:
+            self.deque.append(item)
+
+    def __call__(self):
+        """Rotate head to tail and return head."""
+
+        head = self.deque.popleft()
+        self.deque.append(head)
+        return head
+
+
+class ChimneySweepers:
+    """Chimney sweepers representation."""
+ 
     start_ms: int = 0
-    min_position: float = -1.0
-    max_position: float = 1.0
 
     def __init__(
         self,
         cluster: ServoCluster,
-        translate: TranslateBase
+        sequences: SequenceBase,
+        translate: TranslateBase,
     ) -> None:
         self.cluster = cluster
+        self.sequences = sequences
         self.translate = translate
-
-    def initialize(self) -> None:
-        """Initialization."""
-
-        self.start_ms = time.ticks_ms()
 
     def to_position(self, servo: int, position: float) -> None:
         """Trigger servo to position."""
 
-        self.cluster.to_percent(
-            servo,
-            position,
-            self.min_position,
-            self.max_position,
-        )
+        self.cluster.to_percent(servo, position, -1.0, 1.0)
 
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
 
-        ellapsed_ms = time.ticks_ms() - self.start_ms
+        ticks_ms = time.ticks_ms()
+        ellapsed_ms = time.ticks_diff(ticks_ms, self.start_ms)
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
             self.to_position(servo, position)
@@ -217,15 +204,18 @@ class ServoTickBase:
             return True  # reached end position
         return False  # next tick
 
+    def step(self, sequences: list) -> None:
+        """Servo step."""
 
-
-class ChimneySweepers(ServoTickBase):
-    """Chimney sweepers representation."""
-
-    sequence: list = [
-        [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],
-        [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0],
-    ]
+        status = [False]
+        self.start_ms = time.ticks_ms()
+        while not all(status):
+            status = []
+            for servo, start, end, duration in sequences:
+                self.translate.start = start
+                self.translate.end = end
+                self.translate.duration_ms = duration
+                status.append(self.tick(servo))
 
     def setup(self) -> None:
         """Servo setup."""
@@ -235,33 +225,12 @@ class ChimneySweepers(ServoTickBase):
             self.cluster.to_min(servo)
             time.sleep_ms(500)
 
-    def tick_all(self, seq: list, prev: list) -> list[bool]:
-        """Tick all."""
-        
-        result = []
-        servos = range(self.cluster.count())
-        for servo, start, end in zip(servos, prev, seq):
-            self.translate.start = start
-            self.translate.end = end
-            result.append(self.tick(servo))
-        return result
-
-    def step(self) -> None:
-        """Step servo position."""
-
-        for s, seq in enumerate(self.sequence):
-            prev = self.sequence[s - 1]
-            status = [False] * self.cluster.count()
-            self.initialize()
-            while not all(status):
-                status = self.tick_all(seq, prev)
-
     def run(self, lock: _thread.LockType) -> None:
         """Run servo motors in process loop."""
 
-        if isinstance(lock, _thread.LockType):
-            while not lock.acquire(0):
-                self.step()
+        while not lock.acquire(0):
+            sequences = self.sequences()
+            self.step(sequences)
 
 
 def main():
@@ -271,12 +240,34 @@ def main():
     leds = create_leds()
     mux = create_analog_mux()
     cluster = create_servo_cluster()
+    sequences = SequenceBase(
+        items=[
+            [
+                (0, -1.0, 1.0, 5000),
+                (1, 1.0, -1.0, 5000),
+                (2, -1.0, 1.0, 5000),
+                (3, 1.0, -1.0, 5000),
+                (4, -1.0, 1.0, 5000),
+                (5, 1.0, -1.0, 5000),
+                (6, -1.0, 1.0, 5000),
+            ],
+            [
+                (0, 1.0, -1.0, 5000),
+                (1, -1.0, 1.0, 5000),
+                (2, 1.0, -1.0, 5000),
+                (3, -1.0, 1.0, 5000),
+                (4, 1.0, -1.0, 5000),
+                (5, -1.0, 1.0, 5000),
+                (6, 1.0, -1.0, 5000),
+            ],
+        ]
+    )
     translate = Ease_in_quad()
-    sweepers = ChimneySweepers(cluster, translate)
+    sweepers = ChimneySweepers(cluster, sequences, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
     lock = _thread.allocate_lock()
     _thread.start_new_thread(meter.run, (lock,))
-    time.sleep_ms(200) # allow time for meter lock
+    time.sleep_ms(200)  # allow time for meter lock
     sweepers.setup()
     sweepers.run(lock)
 
