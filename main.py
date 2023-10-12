@@ -3,29 +3,31 @@
 
 """main.py: CS-2040 Servo Controller Module"""
 
-__author__ = "Michael Czigler"
-__copyright__ = "Copyright 2023, Michael Czigler"
-__version__ = "1.0.0"
-__license__ = "BSD-3-Clause"
-__status__ = "Production"
+# MicroPython built-in libraries
+from collections import deque
+from gc import collect
+from machine import Pin
+from time import sleep_ms
+from time import ticks_diff
+from time import ticks_ms
+from _thread import start_new_thread
+from _thread import allocate_lock
+from _thread import LockType
 
-import collections
-import gc
-import machine
-import time
-import _thread
-
+# Pimoroni libraries
 from pimoroni import Analog
 from pimoroni import AnalogMux
 from plasma import WS2812
 from servo import servo2040
 from servo import ServoCluster
 
+__version__ = "1.0.0"
+
 
 def create_servo_cluster() -> ServoCluster:
     """Create and return new ServoCluster object."""
 
-    gc.collect()
+    collect()
     start = servo2040.SERVO_1
     end = servo2040.SERVO_7
     pins = list(range(start, end + 1))
@@ -57,7 +59,7 @@ def create_current_adc() -> Analog:
 def create_analog_mux() -> AnalogMux:
     """Create and return analog multiplexer."""
 
-    muxed_pin = machine.Pin(servo2040.SHARED_ADC)
+    muxed_pin = Pin(servo2040.SHARED_ADC)
     return AnalogMux(
         servo2040.ADC_ADDR_0,
         servo2040.ADC_ADDR_1,
@@ -112,7 +114,7 @@ class LoadCurrentMeter:
             self.leds.set_hsv(i, h, 1.0, v)
         return True 
 
-    def run(self, lock: _thread.Lock = None) -> None:
+    def run(self, lock: LockType) -> None:
         """Run servo current meter in loop."""
 
         lock.acquire()
@@ -157,7 +159,7 @@ class SequenceBase:
 
     def __init__(self, items: list) -> None:
         maxlen = len(items)
-        self.deque = collections.deque((), maxlen)
+        self.deque = deque((), maxlen)
         for item in items:
             self.deque.append(item)
 
@@ -192,8 +194,8 @@ class ChimneySweepers:
     def tick(self, servo: int) -> bool:
         """Single tick in motion."""
 
-        ticks_ms = time.ticks_ms()
-        ellapsed_ms = time.ticks_diff(ticks_ms, self.start_ms)
+        ticks_ms = ticks_ms()
+        ellapsed_ms = ticks_diff(ticks_ms, self.start_ms)
         if ellapsed_ms > self.translate.duration_ms:
             position = self.translate.end
             self.to_position(servo, position)
@@ -208,7 +210,7 @@ class ChimneySweepers:
         """Servo step."""
 
         status = [False]
-        self.start_ms = time.ticks_ms()
+        self.start_ms = ticks_ms()
         while not all(status):
             status = []
             for servo, start, end, duration in sequences:
@@ -222,10 +224,11 @@ class ChimneySweepers:
 
         count = self.cluster.count()
         for servo in range(count):
+            sleep_ms(500)
             self.cluster.to_min(servo)
-            time.sleep_ms(500)
+        sleep_ms(5000) 
 
-    def run(self, lock: _thread.LockType) -> None:
+    def run(self, lock: LockType) -> None:
         """Run servo motors in process loop."""
 
         while not lock.acquire(0):
@@ -265,9 +268,9 @@ def main():
     translate = Ease_in_quad()
     sweepers = ChimneySweepers(cluster, sequences, translate)
     meter = LoadCurrentMeter(leds, adc, mux)
-    lock = _thread.allocate_lock()
-    _thread.start_new_thread(meter.run, (lock,))
-    time.sleep_ms(200)  # allow time for meter lock
+    lock = allocate_lock()
+    start_new_thread(meter.run, (lock,))
+    sleep_ms(200)  # allow time for meter lock
     sweepers.setup()
     sweepers.run(lock)
 
