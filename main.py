@@ -239,7 +239,7 @@ class ChimneySweepers:
             sleep_ms(500)
             self.neopixels[servo] = (0, 0, 0)
             self.cluster.to_min(servo)
-        self.neopixels.wrote()
+        self.neopixels.write()
         sleep_ms(5000)
         while not lock.acquire(0):
             sequences = self.sequences()
