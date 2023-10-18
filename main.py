@@ -7,6 +7,7 @@
 from collections import deque
 from gc import collect
 from machine import Pin
+from neopixel import NeoPixel
 from time import sleep_ms
 from time import ticks_diff
 from time import ticks_ms
@@ -66,6 +67,13 @@ def create_analog_mux() -> AnalogMux:
         servo2040.ADC_ADDR_2,
         muxed_pin=muxed_pin,
     )
+
+
+def create_neopixels() -> NeoPixel:
+    """Create and return neopixels."""
+
+    din_pin = Pin(servo2040.SDA) 
+    return NeoPixel(din_pin, 7)
 
 
 class LoadCurrentMeter:
@@ -179,10 +187,12 @@ class ChimneySweepers:
     def __init__(
         self,
         cluster: ServoCluster,
+        neopixels: NeoPixel,
         sequences: SequenceBase,
         translate: TranslateBase,
     ) -> None:
         self.cluster = cluster
+        self.neopixels = neopixels
         self.sequences = sequences
         self.translate = translate
 
@@ -213,11 +223,13 @@ class ChimneySweepers:
         self.start_ms = ticks_ms()
         while not all(status):
             status = []
-            for servo, start, end, duration in sequences:
+            for servo, start, end, duration, color in sequences:
                 self.translate.start = start
                 self.translate.end = end
                 self.translate.duration_ms = duration
                 status.append(self.tick(servo))
+                self.neopixels[servo] = color
+        self.neopixels.write()
 
     def run(self, lock: LockType) -> None:
         """Run servo motors in process loop."""
@@ -225,7 +237,9 @@ class ChimneySweepers:
         count = self.cluster.count()
         for servo in range(count):
             sleep_ms(500)
+            self.neopixels[servo] = (0, 0, 0)
             self.cluster.to_min(servo)
+        self.neopixels.wrote()
         sleep_ms(5000)
         while not lock.acquire(0):
             sequences = self.sequences()
@@ -238,31 +252,37 @@ def main():
     adc = create_current_adc()
     leds = create_leds()
     mux = create_analog_mux()
+    neopixels = create_neopixels()
     cluster = create_servo_cluster()
     sequences = SequenceBase(
         items=[
             [
-                (0, -1.0, 1.0, 5000),
-                (1, 1.0, -1.0, 5000),
-                (2, -1.0, 1.0, 5000),
-                (3, 1.0, -1.0, 5000),
-                (4, -1.0, 1.0, 5000),
-                (5, 1.0, -1.0, 5000),
-                (6, -1.0, 1.0, 5000),
+                (0, -1.0, 1.0, 5000, (255, 0, 255)),
+                (1, 1.0, -1.0, 5000, (0, 0, 0)),
+                (2, -1.0, 1.0, 5000, (255, 0, 255)),
+                (3, 1.0, -1.0, 5000, (0, 0, 0)),
+                (4, -1.0, 1.0, 5000, (255, 0, 255)),
+                (5, 1.0, -1.0, 5000, (0, 0, 0)),
+                (6, -1.0, 1.0, 5000, (255, 0, 255)),
             ],
             [
-                (0, 1.0, -1.0, 5000),
-                (1, -1.0, 1.0, 5000),
-                (2, 1.0, -1.0, 5000),
-                (3, -1.0, 1.0, 5000),
-                (4, 1.0, -1.0, 5000),
-                (5, -1.0, 1.0, 5000),
-                (6, 1.0, -1.0, 5000),
+                (0, 1.0, -1.0, 5000, (0, 0, 0)),
+                (1, -1.0, 1.0, 5000, (255, 0, 255)),
+                (2, 1.0, -1.0, 5000, (0, 0, 0)),
+                (3, -1.0, 1.0, 5000, (255, 0, 255)),
+                (4, 1.0, -1.0, 5000, (0, 0, 0)),
+                (5, -1.0, 1.0, 5000, (255, 0, 255)),
+                (6, 1.0, -1.0, 5000, (0, 0, 0)),
             ],
         ]
     )
     translate = Ease_in_quad()
-    sweepers = ChimneySweepers(cluster, sequences, translate)
+    sweepers = ChimneySweepers(
+        cluster,
+        neopixels,
+        sequences,
+        translate, 
+    )
     meter = LoadCurrentMeter(leds, adc, mux)
     lock = allocate_lock()
     start_new_thread(meter.run, (lock,))
