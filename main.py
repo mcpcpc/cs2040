@@ -24,6 +24,14 @@ from servo import ServoCluster
 
 __version__ = "1.0.0"
 
+BLACK = const((0, 0, 0))
+RED = const((255, 0, 0))
+ORANGE = const((255, 40, 0))
+YELLOW = const((255, 150, 0))
+GREEN = const((0, 255, 0))
+BLUE = const((0, 0, 255))
+VIOLET = const((180, 0, 255))
+
 
 def create_servo_cluster() -> ServoCluster:
     """Create and return new ServoCluster object."""
@@ -237,7 +245,7 @@ class ChimneySweepers:
         count = self.cluster.count()
         for servo in range(count):
             sleep_ms(500)
-            self.neopixels[servo] = (0, 0, 0)
+            self.neopixels[servo] = BLACK
             self.cluster.to_min(servo)
         self.neopixels.write()
         sleep_ms(5000)
@@ -257,22 +265,22 @@ def main():
     sequences = SequenceBase(
         items=[
             [
-                (0, -1.0, 1.0, 5000, (255, 0, 255)),
-                (1, 1.0, -1.0, 5000, (0, 0, 0)),
-                (2, -1.0, 1.0, 5000, (255, 0, 255)),
-                (3, 1.0, -1.0, 5000, (0, 0, 0)),
-                (4, -1.0, 1.0, 5000, (255, 0, 255)),
-                (5, 1.0, -1.0, 5000, (0, 0, 0)),
-                (6, -1.0, 1.0, 5000, (255, 0, 255)),
+                (0, -1.0, 1.0, 5000, RED),
+                (1, 1.0, -1.0, 5000, BLACK),
+                (2, -1.0, 1.0, 5000, YELLOW),
+                (3, 1.0, -1.0, 5000, BLACK),
+                (4, -1.0, 1.0, 5000, BLUE),
+                (5, 1.0, -1.0, 5000, BLACK),
+                (6, -1.0, 1.0, 5000, VIOLET),
             ],
             [
-                (0, 1.0, -1.0, 5000, (0, 0, 0)),
-                (1, -1.0, 1.0, 5000, (255, 0, 255)),
-                (2, 1.0, -1.0, 5000, (0, 0, 0)),
-                (3, -1.0, 1.0, 5000, (255, 0, 255)),
-                (4, 1.0, -1.0, 5000, (0, 0, 0)),
-                (5, -1.0, 1.0, 5000, (255, 0, 255)),
-                (6, 1.0, -1.0, 5000, (0, 0, 0)),
+                (0, 1.0, -1.0, 5000, BLACK),
+                (1, -1.0, 1.0, 5000, ORANGE),
+                (2, 1.0, -1.0, 5000, BLACK),
+                (3, -1.0, 1.0, 5000, GREEN),
+                (4, 1.0, -1.0, 5000, BLACK),
+                (5, -1.0, 1.0, 5000, VIOLET),
+                (6, 1.0, -1.0, 5000, BLACK),
             ],
         ]
     )
