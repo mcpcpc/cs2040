@@ -245,7 +245,7 @@ class ChimneySweepers:
         count = self.cluster.count()
         for servo in range(count):
             sleep_ms(500)
-            self.neopixels[servo] = BLACK
+            self.neopixels[servo] = RGBW_BLACK
             self.cluster.to_min(servo)
         self.neopixels.write()
         sleep_ms(5000)
