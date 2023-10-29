@@ -81,7 +81,7 @@ def create_rgbw_neopixels() -> NeoPixel:
     """Create and return neopixels."""
 
     din_pin = Pin(servo2040.SDA) 
-    return NeoPixel(din_pin, 7, bpp=4)
+    return NeoPixel(din_pin, 8, bpp=4)
 
 
 class LoadCurrentMeter:
@@ -285,22 +285,22 @@ def main():
                 (7, 0.5, -0.5, 5000, RGBW_BLACK),
             ],
             [
-                (0, -1.0, 1.0, 5000, RGBW_RED),
+                (0, -1.0, 1.0, 5000, RGBW_VIOLET), # violet
                 (1, 1.0, -1.0, 5000, RGBW_BLACK),
-                (2, -1.0, 1.0, 5000, RGBW_YELLOW),
+                (2, -1.0, 1.0, 5000, RGBW_ORANGE), # orange
                 (3, 1.0, -1.0, 5000, RGBW_BLACK),
-                (4, -1.0, 1.0, 5000, RGBW_BLUE),
+                (4, -1.0, 1.0, 5000, RGBW_GREEN), # green
                 (5, 1.0, -1.0, 5000, RGBW_BLACK),
-                (6, -1.0, 1.0, 5000, RGBW_VIOLET),
+                (6, -1.0, 1.0, 5000, RGBW_VIOLET), # violet
                 (7, -0.5, 0.0, 5000, RGBW_BLACK),
             ],
             [
                 (0, 1.0, -1.0, 5000, RGBW_BLACK),
-                (1, -1.0, 1.0, 5000, RGBW_ORANGE),
+                (1, -1.0, 1.0, 5000, RGBW_RED), # red
                 (2, 1.0, -1.0, 5000, RGBW_BLACK),
-                (3, -1.0, 1.0, 5000, RGBW_GREEN),
+                (3, -1.0, 1.0, 5000, RGBW_YELLOW), # yellow
                 (4, 1.0, -1.0, 5000, RGBW_BLACK),
-                (5, -1.0, 1.0, 5000, RGBW_VIOLET),
+                (5, -1.0, 1.0, 5000, RGBW_BLUE), # blue
                 (6, 1.0, -1.0, 5000, RGBW_BLACK),
                 (7, 0.0, -1.0, 5000, RGBW_BLACK),
             ],
