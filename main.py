@@ -285,22 +285,22 @@ def main():
                 (7, 0.5, -0.5, 5000, RGBW_BLACK),
             ],
             [
-                (0, -1.0, 1.0, 5000, RGBW_VIOLET), # violet
+                (0, -1.0, 1.0, 5000, RGBW_VIOLET),
                 (1, 1.0, -1.0, 5000, RGBW_BLACK),
-                (2, -1.0, 1.0, 5000, RGBW_ORANGE), # orange
+                (2, -1.0, 1.0, 5000, RGBW_ORANGE),
                 (3, 1.0, -1.0, 5000, RGBW_BLACK),
-                (4, -1.0, 1.0, 5000, RGBW_GREEN), # green
+                (4, -1.0, 1.0, 5000, RGBW_GREEN),
                 (5, 1.0, -1.0, 5000, RGBW_BLACK),
-                (6, -1.0, 1.0, 5000, RGBW_VIOLET), # violet
+                (6, -1.0, 1.0, 5000, RGBW_VIOLET),
                 (7, -0.5, 0.0, 5000, RGBW_BLACK),
             ],
             [
                 (0, 1.0, -1.0, 5000, RGBW_BLACK),
-                (1, -1.0, 1.0, 5000, RGBW_RED), # red
+                (1, -1.0, 1.0, 5000, RGBW_RED),
                 (2, 1.0, -1.0, 5000, RGBW_BLACK),
-                (3, -1.0, 1.0, 5000, RGBW_YELLOW), # yellow
+                (3, -1.0, 1.0, 5000, RGBW_YELLOW),
                 (4, 1.0, -1.0, 5000, RGBW_BLACK),
-                (5, -1.0, 1.0, 5000, RGBW_BLUE), # blue
+                (5, -1.0, 1.0, 5000, RGBW_BLUE),
                 (6, 1.0, -1.0, 5000, RGBW_BLACK),
                 (7, 0.0, -1.0, 5000, RGBW_BLACK),
             ],
