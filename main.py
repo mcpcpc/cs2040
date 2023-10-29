@@ -38,7 +38,7 @@ def create_servo_cluster() -> ServoCluster:
 
     collect()
     start = servo2040.SERVO_1
-    end = servo2040.SERVO_7
+    end = servo2040.SERVO_8
     pins = list(range(start, end + 1))
     return ServoCluster(0, 0, pins)
 
@@ -248,7 +248,7 @@ class ChimneySweepers:
             self.neopixels[servo] = RGBW_BLACK
             self.cluster.to_min(servo)
         self.neopixels.write()
-        sleep_ms(5000)
+        sleep_ms(3000)
         while not lock.acquire(0):
             sequences = self.sequences()
             self.step(sequences)
@@ -272,6 +272,7 @@ def main():
                 (4, -1.0, 1.0, 5000, RGBW_BLUE),
                 (5, 1.0, -1.0, 5000, RGBW_BLACK),
                 (6, -1.0, 1.0, 5000, RGBW_VIOLET),
+                (7, -1.0, 0.5, 5000, RGBW_BLACK),
             ],
             [
                 (0, 1.0, -1.0, 5000, RGBW_BLACK),
@@ -281,6 +282,27 @@ def main():
                 (4, 1.0, -1.0, 5000, RGBW_BLACK),
                 (5, -1.0, 1.0, 5000, RGBW_VIOLET),
                 (6, 1.0, -1.0, 5000, RGBW_BLACK),
+                (7, 0.5, -0.5, 5000, RGBW_BLACK),
+            ],
+            [
+                (0, -1.0, 1.0, 5000, RGBW_RED),
+                (1, 1.0, -1.0, 5000, RGBW_BLACK),
+                (2, -1.0, 1.0, 5000, RGBW_YELLOW),
+                (3, 1.0, -1.0, 5000, RGBW_BLACK),
+                (4, -1.0, 1.0, 5000, RGBW_BLUE),
+                (5, 1.0, -1.0, 5000, RGBW_BLACK),
+                (6, -1.0, 1.0, 5000, RGBW_VIOLET),
+                (7, -0.5, 0.0, 5000, RGBW_BLACK),
+            ],
+            [
+                (0, 1.0, -1.0, 5000, RGBW_BLACK),
+                (1, -1.0, 1.0, 5000, RGBW_ORANGE),
+                (2, 1.0, -1.0, 5000, RGBW_BLACK),
+                (3, -1.0, 1.0, 5000, RGBW_GREEN),
+                (4, 1.0, -1.0, 5000, RGBW_BLACK),
+                (5, -1.0, 1.0, 5000, RGBW_VIOLET),
+                (6, 1.0, -1.0, 5000, RGBW_BLACK),
+                (7, 0.0, -1.0, 5000, RGBW_BLACK),
             ],
         ]
     )
