@@ -24,13 +24,13 @@ from servo import ServoCluster
 
 __version__ = "1.0.0"
 
-BLACK = const((0, 0, 0))
-RED = const((255, 0, 0))
-ORANGE = const((255, 40, 0))
-YELLOW = const((255, 150, 0))
-GREEN = const((0, 255, 0))
-BLUE = const((0, 0, 255))
-VIOLET = const((180, 0, 255))
+BLACK = const((0, 0, 0, 0))
+RED = const((255, 0, 0, 0))
+ORANGE = const((255, 40, 0, 0))
+YELLOW = const((255, 150, 0, 0))
+GREEN = const((0, 255, 0, 0))
+BLUE = const((0, 0, 255, 0))
+VIOLET = const((180, 0, 255, 0))
 
 
 def create_servo_cluster() -> ServoCluster:
@@ -77,11 +77,11 @@ def create_analog_mux() -> AnalogMux:
     )
 
 
-def create_neopixels() -> NeoPixel:
+def create_rgbw_neopixels() -> NeoPixel:
     """Create and return neopixels."""
 
     din_pin = Pin(servo2040.SDA) 
-    return NeoPixel(din_pin, 7)
+    return NeoPixel(din_pin, 7, bpp=4)
 
 
 class LoadCurrentMeter:
@@ -260,7 +260,7 @@ def main():
     adc = create_current_adc()
     leds = create_leds()
     mux = create_analog_mux()
-    neopixels = create_neopixels()
+    neopixels = create_rgbw_neopixels()
     cluster = create_servo_cluster()
     sequences = SequenceBase(
         items=[
