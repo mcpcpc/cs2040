@@ -24,13 +24,13 @@ from servo import ServoCluster
 
 __version__ = "1.0.0"
 
-BLACK = const((0, 0, 0, 0))
-RED = const((255, 0, 0, 0))
-ORANGE = const((255, 40, 0, 0))
-YELLOW = const((255, 150, 0, 0))
-GREEN = const((0, 255, 0, 0))
-BLUE = const((0, 0, 255, 0))
-VIOLET = const((180, 0, 255, 0))
+RGBW_BLACK = const((0, 0, 0, 0))
+RGBW_RED = const((255, 0, 0, 0))
+RGBW_ORANGE = const((255, 40, 0, 0))
+RGBW_YELLOW = const((255, 150, 0, 0))
+RGBW_GREEN = const((0, 255, 0, 0))
+RGBW_BLUE = const((0, 0, 255, 0))
+RGBW_VIOLET = const((180, 0, 255, 0))
 
 
 def create_servo_cluster() -> ServoCluster:
@@ -265,22 +265,22 @@ def main():
     sequences = SequenceBase(
         items=[
             [
-                (0, -1.0, 1.0, 5000, RED),
-                (1, 1.0, -1.0, 5000, BLACK),
-                (2, -1.0, 1.0, 5000, YELLOW),
-                (3, 1.0, -1.0, 5000, BLACK),
-                (4, -1.0, 1.0, 5000, BLUE),
-                (5, 1.0, -1.0, 5000, BLACK),
-                (6, -1.0, 1.0, 5000, VIOLET),
+                (0, -1.0, 1.0, 5000, RGBW_RED),
+                (1, 1.0, -1.0, 5000, RGBW_BLACK),
+                (2, -1.0, 1.0, 5000, RGBW_YELLOW),
+                (3, 1.0, -1.0, 5000, RGBW_BLACK),
+                (4, -1.0, 1.0, 5000, RGBW_BLUE),
+                (5, 1.0, -1.0, 5000, RGBW_BLACK),
+                (6, -1.0, 1.0, 5000, RGBW_VIOLET),
             ],
             [
-                (0, 1.0, -1.0, 5000, BLACK),
-                (1, -1.0, 1.0, 5000, ORANGE),
-                (2, 1.0, -1.0, 5000, BLACK),
-                (3, -1.0, 1.0, 5000, GREEN),
-                (4, 1.0, -1.0, 5000, BLACK),
-                (5, -1.0, 1.0, 5000, VIOLET),
-                (6, 1.0, -1.0, 5000, BLACK),
+                (0, 1.0, -1.0, 5000, RGBW_BLACK),
+                (1, -1.0, 1.0, 5000, RGBW_ORANGE),
+                (2, 1.0, -1.0, 5000, RGBW_BLACK),
+                (3, -1.0, 1.0, 5000, RGBW_GREEN),
+                (4, 1.0, -1.0, 5000, RGBW_BLACK),
+                (5, -1.0, 1.0, 5000, RGBW_VIOLET),
+                (6, 1.0, -1.0, 5000, RGBW_BLACK),
             ],
         ]
     )
