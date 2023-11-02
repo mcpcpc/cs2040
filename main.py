@@ -247,7 +247,7 @@ class ChimneySweepers:
     def initialize(self, sequences: list) -> None:
         """Initialize servo position."""
 
-        for servo, start, _, _, _ in sequences:
+        for servo, start, *_ in sequences:
             sleep_ms(500)
             self.to_position(servo, start)
             self.neopixels[servo] = RGBW_BLACK
