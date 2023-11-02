@@ -249,7 +249,13 @@ class ChimneySweepers:
 
         for servo, start, *_ in sequences:
             sleep_ms(500)
-            self.to_position(servo, start)
+            #self.to_position(servo, start)
+            for i in range(10):
+                self.to_position(servo, start)
+                sleep_ms(100)
+                self.cluster.disable(servo)
+                sleep_ms(100)
+                self.cluster.enable(servo)
             self.neopixels[servo] = RGBW_BLACK
         self.neopixels.write()
 
