@@ -186,6 +186,11 @@ class SequenceBase:
         self.deque.append(head)
         return head
 
+    def head(self):
+        """Return head value."""
+
+        return self.deque[0]
+
 
 class ChimneySweepers:
     """Chimney sweepers representation."""
@@ -239,15 +244,20 @@ class ChimneySweepers:
                 self.neopixels[servo] = color
         self.neopixels.write()
 
+    def initialize(self, sequences: list) -> None:
+        """Initialize servo position."""
+
+        for servo, start, _, _, _ in sequences:
+            sleep_ms(500)
+            self.cluster.to_position(servo, start)
+            self.neopixels[servo] = RGBW_BLACK
+        self.neopixels.write()
+
     def run(self, lock: LockType) -> None:
         """Run servo motors in process loop."""
 
-        count = self.cluster.count()
-        for servo in range(count):
-            sleep_ms(500)
-            self.neopixels[servo] = RGBW_BLACK
-            self.cluster.to_min(servo)
-        self.neopixels.write()
+        head = self.sequences.head() 
+        self.initialize(head)
         sleep_ms(3000)
         while not lock.acquire(0):
             sequences = self.sequences()
