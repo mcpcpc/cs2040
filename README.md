@@ -24,6 +24,7 @@ based on the project requirements.
 
 - **Pimoroni Servo 2040** or similar RP2040-based servo controller
 - **Tower Pro SG92R** digital (micro) servo, 5.0 volt operation, 180-degree
+- **Adafruit 4776** NeoPixel PCB, RGBW
 
 ### Installation
 
