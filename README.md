@@ -10,6 +10,10 @@ considered an important aspect of this project. Luckily, the board selected for
 this project includes built-in current-sense functionality and six addressable
 RGB LEDs, which allow active visualization of the connected load.
 
+Lastly, in order to add dramatic affect RGB lighting as added using the built-in
+NeoPixel library. Individual LEDs can be programmed per sequenced motor and
+coded to reflect a desired color at a specified sequence step.
+
 ## Assembly
 
 ### Tools
