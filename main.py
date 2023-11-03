@@ -174,6 +174,7 @@ class SequenceBase:
     """Sequences representation."""
 
     def __init__(self, items: list) -> None:
+        self.items = items
         maxlen = len(items)
         self.deque = deque((), maxlen)
         for item in items:
@@ -239,15 +240,20 @@ class ChimneySweepers:
                 self.neopixels[servo] = color
         self.neopixels.write()
 
+    def initialize(self, sequences: list) -> None:
+        """Initialize servo position."""
+
+        for servo, start, *_ in sequences:
+            sleep_ms(500)
+            self.to_position(servo, start)
+            self.neopixels[servo] = RGBW_BLACK
+        self.neopixels.write()
+
     def run(self, lock: LockType) -> None:
         """Run servo motors in process loop."""
 
-        count = self.cluster.count()
-        for servo in range(count):
-            sleep_ms(500)
-            self.neopixels[servo] = RGBW_BLACK
-            self.cluster.to_min(servo)
-        self.neopixels.write()
+        head = self.sequences.items[0]
+        self.initialize(head)
         sleep_ms(3000)
         while not lock.acquire(0):
             sequences = self.sequences()
