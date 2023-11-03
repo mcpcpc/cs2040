@@ -66,7 +66,7 @@ based on the project requirements.
  
 Connect power to the servo controller. The servo motors may immediately begin
 to move in order to establish a known starting position. After the initial
-position of each motor is verified, there is a 3 second delay before the
+position of each motor is set, there is a 3 second delay before the
 actual sequencing of the servos begins.
 
 ### Powering Down
