@@ -41,23 +41,37 @@ based on the project requirements.
 4. Download the CS-2040 source tarball from GitHub and extract the source files.
    Alternatively, use the `git clone https://github.com/mcpcpc/cs2040` command
    to clone the source repository.
-5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo controller.
+5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo
+   controller.
 
 ### Wiring
 
-1. Connect the servo motor cables and to the corresponding servo motors. ![Servo Connection Schema](/docs/motor.svg)
-2. Connect the LED cables per the connection schema below. ![LED Connection Schema](/docs/led.svg)
-3. Install the motors and LEDs to the final location. Ensure that the orientation of the servo is alternating every even and odd motor position.  For example, the servo motor at position #1 should be in the lowest position, #2 at the highest position, #3 at the lowest position, etc. **Do not plug in the servo controller power until the position of each motor has been verified**.
+1. Connect the servo motor cables and to the corresponding servo motors.
+   ![Servo Connection Schema](/docs/motor.svg)
+2. Connect the LED cables per the connection schema below.
+   ![LED Connection Schema](/docs/led.svg)
+3. Install the motors and LEDs to the final location. Ensure that the
+   orientation of the servo is alternating every even and odd motor position.
+   For example, the servo motor at position #1 should be in the lowest
+   position, #2 at the highest position, #3 at the lowest position, etc. **Do
+   not plug in the servo controller power until the position of each motor
+   has been verified**.
 
 ### Powering Up
  
-Connect power to the servo controller. The servo motors may immediately begin to move in order to establish a known starting position. After the initial position of each motor is verified, there is a 3 second delay before the actual sequencing of the servos begins.
+Connect power to the servo controller. The servo motors may immediately begin
+to move in order to establish a known starting position. After the initial
+position of each motor is verified, there is a 3 second delay before the
+actual sequencing of the servos begins.
 
 ### Powering Down
 
-Waiting until all motors have returned to their initial sequence position (i.e. as described in the [wiring](#Wiring) section above and **then** unplug power to the servo motor controller.
+Waiting until all motors have returned to their initial sequence position (i.e.
+as described in the [wiring](#Wiring) section above and **then** unplug power
+to the servo motor controller.
 
-For transportation purposes, disconnect the motors in the reverse order of the [wiring](#Wiring) section above.
+For transportation purposes, disconnect the motors in the reverse order of the
+[wiring](#Wiring) section above.
 
 ## References
 
