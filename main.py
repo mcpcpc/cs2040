@@ -174,6 +174,7 @@ class SequenceBase:
     """Sequences representation."""
 
     def __init__(self, items: list) -> None:
+        self.items = items
         maxlen = len(items)
         self.deque = deque((), maxlen)
         for item in items:
@@ -185,11 +186,6 @@ class SequenceBase:
         head = self.deque.popleft()
         self.deque.append(head)
         return head
-
-    def head(self):
-        """Return head value."""
-
-        return self.deque[0]
 
 
 class ChimneySweepers:
@@ -249,20 +245,14 @@ class ChimneySweepers:
 
         for servo, start, *_ in sequences:
             sleep_ms(500)
-            #self.to_position(servo, start)
-            for i in range(10):
-                self.to_position(servo, start)
-                sleep_ms(100)
-                self.cluster.disable(servo)
-                sleep_ms(100)
-                self.cluster.enable(servo)
+            self.to_position(servo, start)
             self.neopixels[servo] = RGBW_BLACK
         self.neopixels.write()
 
     def run(self, lock: LockType) -> None:
         """Run servo motors in process loop."""
 
-        head = self.sequences.head() 
+        head = self.sequences.items[0]
         self.initialize(head)
         sleep_ms(3000)
         while not lock.acquire(0):
