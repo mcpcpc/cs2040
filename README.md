@@ -60,6 +60,8 @@ Connect power to the servo controller. The servo motors may immediately begin to
 
 Waiting until all motors have returned to their initial sequence position (i.e. as described in the [wiring](#Wiring) section above and **then** unplug power to the servo motor controller.
 
+For transportation purposes, disconnect the motors in the reverse order of the [wiring](#Wiring) section above.
+
 ## References
 
 * https://github.com/mcpcpc/cs2040/releases/latest
