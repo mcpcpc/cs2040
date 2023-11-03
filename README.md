@@ -15,7 +15,6 @@ RGB LEDs, which allow active visualization of the connected load.
 ### Tools
 
 - USB-C to USB-C or appropriate USB-C adapter cable for programming and power
-- **Molex 0638171200** Right-angle wire stripper (or equivalent)
 
 ### Bill of Material
 
@@ -25,8 +24,6 @@ based on the project requirements.
 
 - **Pimoroni Servo 2040** or similar RP2040-based servo controller
 - **Tower Pro SG92R** digital (micro) servo, 5.0 volt operation, 180-degree
-- **McMaster-Carr 1037N112** 	polycarbonate plastic enclosure
-- **Alpha Wire 3051 GR005** green hook-up wire, 22AWG, stranded, 100-feet
 
 ### Installation
 
