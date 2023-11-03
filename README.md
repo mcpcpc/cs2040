@@ -47,11 +47,12 @@ based on the project requirements.
 5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo
    controller.
 
-### Wiring
+### Wiring and Power Up
 
 1. Connect the servo motor cables and to the corresponding servo motors. ![Servo Connection Schema](/docs/motor.svg)
 2. Connect the LED cables per the connection schema below. ![LED Connection Schema](/docs/led.svg)
-3. Install the motors and LEDs to the final location. Ensure that the orientation of the servo is alternating every even and odd motor position.  For example, the servo motor at position #1 should be in the lowest position, #2 at the highest position, #3 at the lowest position, etc.
+3. Install the motors and LEDs to the final location. Ensure that the orientation of the servo is alternating every even and odd motor position.  For example, the servo motor at position #1 should be in the lowest position, #2 at the highest position, #3 at the lowest position, etc. This ensures a smoother start up and reduces the amount of sudden motion at the beginning.
+4. Connect power to the servo controller. The servo motors may immediately begin to move in order to establish a known starting position. After the initial position of each motor is verified, there is a 3 second delay before the actual sequencing of the servos begins.
 
 ## References
 
