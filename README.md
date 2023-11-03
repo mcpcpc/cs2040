@@ -44,8 +44,7 @@ based on the project requirements.
 4. Download the CS-2040 source tarball from GitHub and extract the source files.
    Alternatively, use the `git clone https://github.com/mcpcpc/cs2040` command
    to clone the source repository.
-5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo
-   controller.
+5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo controller.
 
 ### Wiring
 
@@ -56,6 +55,10 @@ based on the project requirements.
 ### Powering Up
  
 Connect power to the servo controller. The servo motors may immediately begin to move in order to establish a known starting position. After the initial position of each motor is verified, there is a 3 second delay before the actual sequencing of the servos begins.
+
+### Powering Down
+
+Waiting until all motors have returned to their initial sequence position (i.e. as described in the [wiring](#Wiring) section above and **then** unplug power to the servo motor controller.
 
 ## References
 
