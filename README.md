@@ -3,7 +3,7 @@
 CS-2040 is an RP2040-based servo controller project for christmas tree display
 automation. The CS- prefix stands for "Chimney Sweep" as this project was
 primarily designed to articulate 3D figurines for a Mary Poppins themed ornament
-using low cost micro servos. The CS-2040 can support up to 18 consecutive 
+using low cost micro servos. 
 
 In addition to articulating the figures, servo current load monitoring was also
 considered an important aspect of this project. Luckily, the board selected for
