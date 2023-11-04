@@ -3,19 +3,22 @@
 CS-2040 is an RP2040-based servo controller project for christmas tree display
 automation. The CS- prefix stands for "Chimney Sweep" as this project was
 primarily designed to articulate 3D figurines for a Mary Poppins themed ornament
-using low cost micro servos. The CS-2040 can support up to 18 consecutive 
+using low cost micro servos. 
 
 In addition to articulating the figures, servo current load monitoring was also
 considered an important aspect of this project. Luckily, the board selected for
 this project includes built-in current-sense functionality and six addressable
 RGB LEDs, which allow active visualization of the connected load.
 
+Lastly, in order to add dramatic affect, RGB lighting was added using the built-in
+NeoPixel library. Individual LEDs can be programmed per sequenced motor and
+coded to reflect a desired color at a specified sequence step.
+
 ## Assembly
 
 ### Tools
 
 - USB-C to USB-C or appropriate USB-C adapter cable for programming and power
-- **Molex 0638171200** Right-angle wire stripper (or equivalent)
 
 ### Bill of Material
 
@@ -25,8 +28,7 @@ based on the project requirements.
 
 - **Pimoroni Servo 2040** or similar RP2040-based servo controller
 - **Tower Pro SG92R** digital (micro) servo, 5.0 volt operation, 180-degree
-- **McMaster-Carr 1037N112** 	polycarbonate plastic enclosure
-- **Alpha Wire 3051 GR005** green hook-up wire, 22AWG, stranded, 100-feet
+- **Adafruit 4776** NeoPixel PCB, RGBW
 
 ### Installation
 
@@ -46,6 +48,35 @@ based on the project requirements.
    to clone the source repository.
 5. Using a MicroPython compatible IDE, copy the `main.py` file to to the servo
    controller.
+
+### Wiring
+
+1. Connect the servo motor cables and to the corresponding servo motors.
+   ![Servo Connection Schema](/docs/motor.svg)
+2. Connect the LED cables per the connection schema below.
+   ![LED Connection Schema](/docs/led.svg)
+3. Install the motors and LEDs to the final location. Ensure that the
+   orientation of the servo is alternating every even and odd motor position.
+   For example, the servo motor at position #1 should be in the lowest
+   position, #2 at the highest position, #3 at the lowest position, etc. **Do
+   not plug in the servo controller power until the position of each motor
+   has been verified**.
+
+### Powering Up
+ 
+Connect power to the servo controller. The servo motors may immediately begin
+to move in order to establish a known starting position. After the initial
+position of each motor is set, there is a 3 second delay before the
+actual sequencing of the servos begins.
+
+### Powering Down
+
+Waiting until all motors have returned to their initial sequence position (i.e.
+as described in the [wiring](#Wiring) section above and **then** unplug power
+to the servo motor controller.
+
+For transportation purposes, disconnect the motors in the reverse order of the
+[wiring](#Wiring) section above.
 
 ## References
 
