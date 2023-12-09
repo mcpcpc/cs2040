@@ -20,7 +20,7 @@ from pimoroni import Analog
 from pimoroni import AnalogMux
 from plasma import WS2812
 from servo import servo2040
-from servo import ServoCluster
+from servo import Servo
 
 __version__ = "1.0.0"
 
@@ -31,16 +31,6 @@ RGBW_YELLOW = const((255, 150, 0, 0))
 RGBW_GREEN = const((0, 255, 0, 0))
 RGBW_BLUE = const((0, 0, 255, 0))
 RGBW_VIOLET = const((180, 0, 255, 0))
-
-
-def create_servo_cluster() -> ServoCluster:
-    """Create and return new ServoCluster object."""
-
-    collect()
-    start = servo2040.SERVO_1
-    end = servo2040.SERVO_8
-    pins = list(range(start, end + 1))
-    return ServoCluster(0, 0, pins)
 
 
 def create_leds() -> WS2812:
@@ -141,35 +131,6 @@ class LoadCurrentMeter:
         lock.release() 
 
 
-class TranslateBase:
-    """Translation base representation."""
-
-    start: float = -1.0
-    end: float = 1.0
-    duration_ms: int = 5000
-
-    def __call__(self, time_ms: int) -> float:
-        return self.ease(time_ms)
-
-    def function(self, t: float) -> int:
-        """User implemented translation function."""
-
-        return NotImplementedError
-
-    def ease(self, time_ms: int) -> float:
-        """Ease postion from current time in milliseconds."""
-
-        a = self.function(time_ms / self.duration_ms)
-        return a * (self.end - self.start) + self.start
-
-
-class Ease_in_quad(TranslateBase):
-    """Quadratic ease-in function."""
-
-    def function(self, t: float) -> float:
-        return t * t
-
-
 class SequenceBase:
     """Sequences representation."""
 
@@ -195,69 +156,38 @@ class ChimneySweepers:
 
     def __init__(
         self,
-        cluster: ServoCluster,
         neopixels: NeoPixel,
         sequences: SequenceBase,
-        translate: TranslateBase,
+        servo: Servo,
     ) -> None:
-        self.cluster = cluster
         self.neopixels = neopixels
         self.sequences = sequences
-        self.translate = translate
-
-    def to_position(self, servo: int, position: float) -> None:
-        """Trigger servo to position."""
-
-        self.cluster.to_percent(servo, position, -1.0, 1.0)
-
-    def tick(self, servo: int) -> bool:
-        """Single tick in motion."""
-
-        now_ms = ticks_ms()
-        ellapsed_ms = ticks_diff(now_ms, self.start_ms)
-        if ellapsed_ms > self.translate.duration_ms:
-            position = self.translate.end
-            self.to_position(servo, position)
-            return True  # exceeded ellapsed_time
-        position = self.translate.ease(ellapsed_ms)
-        self.to_position(servo, position)
-        if position == self.translate.end:
-            return True  # reached end position
-        return False  # next tick
+        self.servo = servo
 
     def step(self, sequences: list) -> None:
         """Servo step."""
 
-        status = [False]
-        self.start_ms = ticks_ms()
-        while not all(status):
-            status = []
-            for servo, start, end, duration, color in sequences:
-                self.translate.start = start
-                self.translate.end = end
-                self.translate.duration_ms = duration
-                status.append(self.tick(servo))
-                self.neopixels[servo] = color
+        for servo, color in sequences:
+            self.neopixels[servo] = color
         self.neopixels.write()
 
     def initialize(self, sequences: list) -> None:
         """Initialize servo position."""
 
-        for servo, start, *_ in sequences:
-            sleep_ms(500)
-            self.to_position(servo, start)
+        for servo, *_ in sequences:
             self.neopixels[servo] = RGBW_BLACK
         self.neopixels.write()
+        self.servo.value(0.04)
 
     def run(self, lock: LockType) -> None:
         """Run servo motors in process loop."""
 
         head = self.sequences.items[0]
         self.initialize(head)
-        sleep_ms(3000)
         while not lock.acquire(0):
             sequences = self.sequences()
             self.step(sequences)
+            sleep_ms(5000)
 
 
 def main():
@@ -267,57 +197,55 @@ def main():
     leds = create_leds()
     mux = create_analog_mux()
     neopixels = create_rgbw_neopixels()
-    cluster = create_servo_cluster()
+    servo = Servo(servo2040.SERVO_1, 2)
     sequences = SequenceBase(
         items=[
             [
-                (0, -1.0, 1.0, 5000, RGBW_RED),
-                (1, 1.0, -1.0, 5000, RGBW_BLACK),
-                (2, -1.0, 1.0, 5000, RGBW_YELLOW),
-                (3, 1.0, -1.0, 5000, RGBW_BLACK),
-                (4, -1.0, 1.0, 5000, RGBW_BLUE),
-                (5, 1.0, -1.0, 5000, RGBW_BLACK),
-                (6, -1.0, 1.0, 5000, RGBW_VIOLET),
-                (7, -1.0, 0.5, 5000, RGBW_BLACK),
+                (0, RGBW_RED),
+                (1, RGBW_BLACK),
+                (2, RGBW_YELLOW),
+                (3, RGBW_BLACK),
+                (4, RGBW_BLUE),
+                (5, RGBW_BLACK),
+                (6, RGBW_VIOLET),
+                (7, RGBW_BLACK),
             ],
             [
-                (0, 1.0, -1.0, 5000, RGBW_BLACK),
-                (1, -1.0, 1.0, 5000, RGBW_ORANGE),
-                (2, 1.0, -1.0, 5000, RGBW_BLACK),
-                (3, -1.0, 1.0, 5000, RGBW_GREEN),
-                (4, 1.0, -1.0, 5000, RGBW_BLACK),
-                (5, -1.0, 1.0, 5000, RGBW_VIOLET),
-                (6, 1.0, -1.0, 5000, RGBW_BLACK),
-                (7, 0.5, -0.5, 5000, RGBW_BLACK),
+                (0, RGBW_BLACK),
+                (1, RGBW_ORANGE),
+                (2, RGBW_BLACK),
+                (3, RGBW_GREEN),
+                (4, RGBW_BLACK),
+                (5, RGBW_VIOLET),
+                (6, RGBW_BLACK),
+                (7, RGBW_BLACK),
             ],
             [
-                (0, -1.0, 1.0, 5000, RGBW_VIOLET),
-                (1, 1.0, -1.0, 5000, RGBW_BLACK),
-                (2, -1.0, 1.0, 5000, RGBW_ORANGE),
-                (3, 1.0, -1.0, 5000, RGBW_BLACK),
-                (4, -1.0, 1.0, 5000, RGBW_GREEN),
-                (5, 1.0, -1.0, 5000, RGBW_BLACK),
-                (6, -1.0, 1.0, 5000, RGBW_VIOLET),
-                (7, -0.5, 0.0, 5000, RGBW_BLACK),
+                (0, RGBW_VIOLET),
+                (1, RGBW_BLACK),
+                (2, RGBW_ORANGE),
+                (3, RGBW_BLACK),
+                (4, RGBW_GREEN),
+                (5, RGBW_BLACK),
+                (6, RGBW_VIOLET),
+                (7, RGBW_BLACK),
             ],
             [
-                (0, 1.0, -1.0, 5000, RGBW_BLACK),
-                (1, -1.0, 1.0, 5000, RGBW_RED),
-                (2, 1.0, -1.0, 5000, RGBW_BLACK),
-                (3, -1.0, 1.0, 5000, RGBW_YELLOW),
-                (4, 1.0, -1.0, 5000, RGBW_BLACK),
-                (5, -1.0, 1.0, 5000, RGBW_BLUE),
-                (6, 1.0, -1.0, 5000, RGBW_BLACK),
-                (7, 0.0, -1.0, 5000, RGBW_BLACK),
+                (0, RGBW_BLACK),
+                (1, RGBW_RED),
+                (2, RGBW_BLACK),
+                (3, RGBW_YELLOW),
+                (4, RGBW_BLACK),
+                (5, RGBW_BLUE),
+                (6, RGBW_BLACK),
+                (7, RGBW_BLACK),
             ],
         ]
     )
-    translate = Ease_in_quad()
     sweepers = ChimneySweepers(
-        cluster,
         neopixels,
         sequences,
-        translate, 
+        servo,
     )
     meter = LoadCurrentMeter(leds, adc, mux)
     lock = allocate_lock()
